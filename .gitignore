@@ -1,2 +1,4 @@
 pdfs
 reviews
+.venv/
+__pycache__/

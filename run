@@ -1,0 +1,316 @@
+#!/usr/bin/env bash
+# Cross-platform runner for the Review Evaluation Console.
+# Detects/installs Python 3, manages a virtual environment, installs requirements,
+# launches the server, and opens the web UI in a browser.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Load environment variables if .env exists
+if [[ -f "$SCRIPT_DIR/.env" ]]; then
+    set -a
+    # shellcheck disable=SC1091
+    source "$SCRIPT_DIR/.env"
+    set +a
+fi
+
+resolve_path() {
+    local path_value="$1"
+    local base="$2"
+
+    if [[ -z "$path_value" ]]; then
+        printf '%s\n' "$base"
+        return
+    fi
+
+    if [[ "$path_value" = /* ]]; then
+        printf '%s\n' "$path_value"
+    else
+        printf '%s/%s\n' "$base" "$path_value"
+    fi
+}
+
+PROJECT_ROOT_REL="${WEBAPP_PROJECT_ROOT:-.}"
+PROJECT_ROOT="$(resolve_path "$PROJECT_ROOT_REL" "$SCRIPT_DIR")"
+PROJECT_ROOT="$(cd "$PROJECT_ROOT" && pwd)"
+
+ENV_FILE_REL="${WEBAPP_ENV_FILE:-.env}"
+if [[ "$ENV_FILE_REL" = /* ]]; then
+    export WEBAPP_ENV_FILE="$ENV_FILE_REL"
+else
+    export WEBAPP_ENV_FILE="$PROJECT_ROOT/$ENV_FILE_REL"
+fi
+
+WEB_ROOT_REL="${WEBAPP_WEB_ROOT:-webapp}"
+WEBAPP_DIR="$(resolve_path "$WEB_ROOT_REL" "$PROJECT_ROOT")"
+
+if [[ ! -d "$WEBAPP_DIR" ]]; then
+    echo "Web application directory not found: $WEBAPP_DIR" >&2
+    exit 1
+fi
+WEBAPP_DIR="$(cd "$WEBAPP_DIR" && pwd)"
+export WEBAPP_WEB_ROOT="$WEBAPP_DIR"
+
+VENV_DIR_REL="${WEBAPP_VENV_DIR:-.venv}"
+VENV_DIR="$(resolve_path "$VENV_DIR_REL" "$PROJECT_ROOT")"
+export WEBAPP_VENV_DIR="$VENV_DIR"
+
+REQUIREMENTS_REL="${WEBAPP_REQUIREMENTS_FILE:-webapp/requirements.txt}"
+REQUIREMENTS_FILE="$(resolve_path "$REQUIREMENTS_REL" "$PROJECT_ROOT")"
+export WEBAPP_REQUIREMENTS_FILE="$REQUIREMENTS_FILE"
+
+PORT="${WEBAPP_PORT:-8090}"
+OPEN_BROWSER="true"
+OS_TYPE="unknown"
+declare -a PYTHON_BIN=()
+VENV_PYTHON=""
+VENV_PIP=""
+
+# Export resolved paths for the Python server
+REVIEWS_JSON_REL="${WEBAPP_REVIEWS_JSON:-reviews/evaluation-data-all-venues.json}"
+if [[ "$REVIEWS_JSON_REL" = /* ]]; then
+    export WEBAPP_REVIEWS_JSON="$REVIEWS_JSON_REL"
+else
+    export WEBAPP_REVIEWS_JSON="$PROJECT_ROOT/$REVIEWS_JSON_REL"
+fi
+
+PDFS_ROOT_REL="${WEBAPP_PDFS_ROOT:-pdfs}"
+if [[ "$PDFS_ROOT_REL" = /* ]]; then
+    export WEBAPP_PDFS_ROOT="$PDFS_ROOT_REL"
+else
+    export WEBAPP_PDFS_ROOT="$PROJECT_ROOT/$PDFS_ROOT_REL"
+fi
+
+export WEBAPP_PROJECT_ROOT="$PROJECT_ROOT"
+
+usage() {
+    cat <<'EOF'
+Usage: ./run [options]
+
+Options:
+  --port <number>    Port for the web server (default 8090 or WEBAPP_PORT env)
+  --no-browser       Do not automatically launch a browser window
+  -h, --help         Show this help message
+EOF
+}
+
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --port)
+                shift || { echo "Missing value for --port" >&2; exit 1; }
+                PORT="$1"
+                ;;
+            --no-browser)
+                OPEN_BROWSER="false"
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                usage
+                exit 1
+                ;;
+        esac
+        shift || true
+    done
+}
+
+validate_port() {
+    if ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
+        echo "Invalid port: $PORT" >&2
+        exit 1
+    fi
+    if (( PORT < 1 || PORT > 65535 )); then
+        echo "Port must be between 1 and 65535" >&2
+        exit 1
+    fi
+}
+
+detect_os() {
+    local uname_out
+    uname_out="$(uname -s 2>/dev/null || echo "")"
+    case "$uname_out" in
+        Darwin) OS_TYPE="mac" ;;
+        Linux) OS_TYPE="linux" ;;
+        CYGWIN*|MINGW*|MSYS*|Windows_NT) OS_TYPE="windows" ;;
+        *) OS_TYPE="unknown" ;;
+    esac
+}
+
+check_python_cmd() {
+    local cmd="$1"
+    shift || true
+
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        return 1
+    fi
+
+    local -a command_to_run=("$cmd")
+    if [[ $# -gt 0 ]]; then
+        command_to_run+=("$@")
+    fi
+
+    if "${command_to_run[@]}" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1; then
+        PYTHON_BIN=("${command_to_run[@]}")
+        return 0
+    fi
+    return 1
+}
+
+find_python() {
+    PYTHON_BIN=()
+    if check_python_cmd python3; then return 0; fi
+    if check_python_cmd python; then return 0; fi
+    if check_python_cmd py -3; then return 0; fi
+    if check_python_cmd py; then return 0; fi
+    return 1
+}
+
+install_python() {
+    echo "Attempting to install Python 3.8+..."
+    case "$OS_TYPE" in
+        mac)
+            if command -v brew >/dev/null 2>&1; then
+                brew update
+                brew install python
+            else
+                echo "Homebrew not found. Install Homebrew or Python 3 from https://www.python.org/downloads/ and run this script again." >&2
+                exit 1
+            fi
+            ;;
+        linux)
+            if command -v apt-get >/dev/null 2>&1; then
+                sudo apt-get update
+                sudo apt-get install -y python3 python3-venv python3-pip
+            elif command -v yum >/dev/null 2>&1; then
+                sudo yum install -y python3 python3-venv python3-pip
+            elif command -v dnf >/dev/null 2>&1; then
+                sudo dnf install -y python3 python3-venv python3-pip
+            elif command -v pacman >/dev/null 2>&1; then
+                sudo pacman -S --noconfirm python python-pip
+            else
+                echo "Could not determine package manager. Install Python 3 manually and rerun." >&2
+                exit 1
+            fi
+            ;;
+        windows)
+            if command -v winget >/dev/null 2>&1; then
+                winget install --id Python.Python.3 -e --source winget
+            elif command -v choco >/dev/null 2>&1; then
+                choco install -y python
+            else
+                echo "Install Python 3 from https://www.python.org/downloads/ and rerun this script." >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Unsupported operating system. Install Python 3 manually and rerun." >&2
+            exit 1
+            ;;
+    esac
+}
+
+ensure_python() {
+    if find_python; then
+        return 0
+    fi
+
+    echo "Python 3.8+ not found."
+    install_python
+
+    if ! find_python; then
+        echo "Failed to locate Python 3.8+ after installation attempt." >&2
+        exit 1
+    fi
+}
+
+create_venv() {
+    if [[ ! -d "$VENV_DIR" ]]; then
+        echo "Creating virtual environment in $VENV_DIR"
+        "${PYTHON_BIN[@]}" -m venv "$VENV_DIR"
+    fi
+
+    if [[ -x "$VENV_DIR/bin/python" ]]; then
+        VENV_PYTHON="$VENV_DIR/bin/python"
+        VENV_PIP="$VENV_DIR/bin/pip"
+    elif [[ -x "$VENV_DIR/Scripts/python.exe" ]]; then
+        VENV_PYTHON="$VENV_DIR/Scripts/python.exe"
+        VENV_PIP="$VENV_DIR/Scripts/pip.exe"
+    else
+        echo "Unable to locate virtual environment executables." >&2
+        exit 1
+    fi
+}
+
+install_requirements() {
+    if [[ ! -f "$REQUIREMENTS_FILE" ]]; then
+        echo "No requirements file found at $REQUIREMENTS_FILE. Skipping dependency installation."
+        return
+    fi
+
+    echo "Installing Python dependencies..."
+    "$VENV_PIP" install --upgrade pip setuptools wheel
+    "$VENV_PIP" install -r "$REQUIREMENTS_FILE"
+}
+
+start_browser() {
+    local url="$1"
+    case "$OS_TYPE" in
+        mac)
+            if command -v open >/dev/null 2>&1; then
+                open "$url" >/dev/null 2>&1 &
+                return
+            fi
+            ;;
+        linux)
+            if command -v xdg-open >/dev/null 2>&1; then
+                xdg-open "$url" >/dev/null 2>&1 &
+                return
+            fi
+            ;;
+        windows)
+            if command -v powershell >/dev/null 2>&1; then
+                powershell -NoProfile -Command "Start-Process '$url'" >/dev/null 2>&1 &
+                return
+            fi
+            if command -v cmd.exe >/dev/null 2>&1; then
+                cmd.exe /c start "" "$url" >/dev/null 2>&1
+                return
+            fi
+            ;;
+    esac
+    # Fallback using Python's webbrowser module
+    "$VENV_PYTHON" -m webbrowser "$url" >/dev/null 2>&1 &
+}
+
+start_server() {
+    echo "Starting Review Evaluation Console server on port $PORT..."
+    if [[ "$OPEN_BROWSER" == "true" ]]; then
+        local url="http://localhost:${PORT}/index.html"
+        (sleep 1 && start_browser "$url") &
+        echo "Browser will open at $url"
+    else
+        echo "Browser auto-launch disabled. Visit http://localhost:${PORT}/index.html"
+    fi
+
+    cd "$WEBAPP_DIR"
+    exec "$VENV_PYTHON" server.py --port "$PORT"
+}
+
+main() {
+    parse_args "$@"
+    validate_port
+    detect_os
+    ensure_python
+    echo "Using Python: ${PYTHON_BIN[*]}"
+    create_venv
+    echo "Virtual environment: $VENV_PYTHON"
+    install_requirements
+    start_server
+}
+
+main "$@"

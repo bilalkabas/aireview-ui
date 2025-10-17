@@ -13,8 +13,47 @@ from urllib.parse import urlparse, parse_qs
 import urllib.request
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_ENV_FILE = os.path.join('..', '.env')
+env_file_setting = os.environ.get('WEBAPP_ENV_FILE', DEFAULT_ENV_FILE)
+if not os.path.isabs(env_file_setting):
+    ENV_FILE_PATH = os.path.abspath(os.path.join(SCRIPT_DIR, env_file_setting))
+else:
+    ENV_FILE_PATH = env_file_setting
+
+# Load environment variables (does not override existing values)
+load_dotenv(ENV_FILE_PATH)
+
+ENV_ROOT = os.path.abspath(os.path.dirname(ENV_FILE_PATH))
+os.environ['WEBAPP_ENV_FILE'] = ENV_FILE_PATH
+
+project_root_setting = os.environ.get('WEBAPP_PROJECT_ROOT', ENV_ROOT)
+if not os.path.isabs(project_root_setting):
+    PROJECT_ROOT = os.path.abspath(os.path.join(ENV_ROOT, project_root_setting))
+else:
+    PROJECT_ROOT = project_root_setting
+os.environ['WEBAPP_PROJECT_ROOT'] = PROJECT_ROOT
+
+
+def resolve_path(env_value, default_relative: str) -> str:
+    """Resolve a path from env or default relative to the project root."""
+    path = env_value or default_relative
+    if not os.path.isabs(path):
+        path = os.path.abspath(os.path.join(PROJECT_ROOT, path))
+    return path
+
+
+REVIEWS_JSON_PATH = resolve_path(
+    os.environ.get('WEBAPP_REVIEWS_JSON'),
+    os.path.join('reviews', 'evaluation-data-all-venues.json')
+)
+os.environ['WEBAPP_REVIEWS_JSON'] = REVIEWS_JSON_PATH
+
+PDFS_ROOT = resolve_path(
+    os.environ.get('WEBAPP_PDFS_ROOT'),
+    'pdfs'
+)
+os.environ['WEBAPP_PDFS_ROOT'] = PDFS_ROOT
 
 
 class EvaluationHandler(SimpleHTTPRequestHandler):
@@ -44,8 +83,7 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(f'Error loading config: {str(e)}'.encode('utf-8'))
         elif self.path == '/reviews/evaluation-data-all-venues.json':
             try:
-                file_path = '../reviews/evaluation-data-all-venues.json'
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(REVIEWS_JSON_PATH, 'r', encoding='utf-8') as f:
                     content = f.read()
 
                 self.send_response(200)
@@ -57,14 +95,23 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 self.send_response(500)
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
-                self.wfile.write(f'Error loading file: {str(e)}'.encode('utf-8'))
+                self.wfile.write(f'Error loading file ({REVIEWS_JSON_PATH}): {str(e)}'.encode('utf-8'))
         elif self.path.startswith('/pdfs/'):
             # Serve local PDF files
             try:
-                # Get the PDF file path
-                pdf_path = '..' + self.path  # Path relative to webapp dir
+                # Normalise and build the PDF file path
+                relative = os.path.normpath(self.path[len('/pdfs/'):])
 
-                if not os.path.exists(pdf_path):
+                if relative.startswith('..'):
+                    self.send_response(403)
+                    self.send_header('Content-type', 'text/plain')
+                    self.end_headers()
+                    self.wfile.write(b'Forbidden')
+                    return
+
+                pdf_path = os.path.join(PDFS_ROOT, relative)
+
+                if not os.path.exists(pdf_path) or os.path.isdir(pdf_path):
                     self.send_response(404)
                     self.send_header('Content-type', 'text/plain')
                     self.end_headers()
@@ -82,7 +129,7 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(pdf_content)
 
             except Exception as e:
-                print(f"Error serving local PDF: {str(e)}")
+                print(f"Error serving local PDF ({PDFS_ROOT}): {str(e)}")
                 self.send_response(500)
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
@@ -163,8 +210,7 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 data = json.loads(post_data.decode('utf-8'))
 
                 # Save to file
-                file_path = '../reviews/evaluation-data-all-venues.json'
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(REVIEWS_JSON_PATH, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
 
                 # Send success response
@@ -232,6 +278,9 @@ def run_server(port=8090):
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
     """)
+    print(f"Using review data file: {REVIEWS_JSON_PATH}")
+    print(f"Using PDF directory:    {PDFS_ROOT}")
+    print(f"Loaded environment from: {ENV_FILE_PATH}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
