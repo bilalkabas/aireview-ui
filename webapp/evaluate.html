@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Evaluation Console - Evaluation</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="theme.js" defer></script>
+</head>
+<body class="evaluation-page">
+    <div class="container">
+        <header>
+            <div class="header-right">
+                <button id="prev-paper-btn" class="nav-button" title="Previous Paper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <span id="paper-position" class="paper-position"></span>
+                <button id="next-paper-btn" class="nav-button" title="Next Paper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <h1>Review Evaluation Console: Evaluation</h1>
+            <div class="header-left">
+                <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+                    <span class="theme-toggle-icon" aria-hidden="true">☀️</span>
+                    <span class="theme-toggle-label">Light</span>
+                </button>
+                <a href="index.html" class="back-button" id="back-button">← Back to Papers</a>
+            </div>
+        </header>
+
+        <div class="evaluation-content">
+            <!-- Paper Info & Reviews -->
+            <div class="paper-panel" id="paper-panel">
+                <div class="paper-info">
+                    <div class="paper-title-row">
+                        <h2 id="paper-title">Loading...</h2>
+                        <a id="pdf-link-icon" href="#" target="_blank" class="pdf-link-icon" title="Open PDF in new tab">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                        </a>
+                    </div>
+                    <ul class="paper-meta">
+                        <li><span id="paper-status"></span></li>
+                        <li><strong>Evaluators:</strong> <span id="paper-evaluators"></span></li>
+                        <li><strong>Research areas:</strong> <span id="paper-areas"></span></li>
+                    </ul>
+                    <details class="abstract-section">
+                        <summary>Abstract</summary>
+                        <p id="paper-abstract"></p>
+                    </details>
+                </div>
+
+                <div class="reviews-section">
+                    <div id="reviews-list"></div>
+                </div>
+            </div>
+
+            <!-- Resizer -->
+            <div class="resizer" id="resizer"></div>
+
+            <!-- PDF Viewer -->
+            <div class="pdf-panel" id="pdf-panel">
+                <iframe id="pdf-viewer" type="application/pdf" width="100%" height="100%"></iframe>
+                <div id="pdf-fallback" style="display: none; padding: 20px; text-align: center;">
+                    <p class="pdf-fallback-title">Unable to display PDF in browser.</p>
+                    <p class="pdf-fallback-note">Use the link icon next to the title to open the PDF.</p>
+                    <a id="pdf-fallback-link" href="#" target="_blank" class="pdf-button">Open PDF in New Tab</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="evaluate.js"></script>
+</body>
+</html>

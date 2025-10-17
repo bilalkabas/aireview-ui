@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Evaluation Console - Evaluator Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="theme.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Review Evaluation Console: Evaluator Dashboard</h1>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+                    <span class="theme-toggle-icon" aria-hidden="true">☀️</span>
+                    <span class="theme-toggle-label">Light</span>
+                </button>
+                <a href="index.html" class="back-button">← Back to Papers</a>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Left Sidebar -->
+            <aside class="filters">
+                <!-- Evaluator Selection -->
+                <div class="filter-section">
+                    <h3 class="filter-header">Select Evaluator</h3>
+                    <div class="filter-content">
+                        <select id="evaluator-selector" class="evaluator-dropdown">
+                            <option value="">-- Select an evaluator --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Statistics Section -->
+                <div id="stats-section" class="filter-section" style="display: none;">
+                    <h3 class="filter-header">Statistics</h3>
+                    <div class="filter-content">
+                        <div class="stats-list">
+                            <div class="stat-item">
+                                <div class="stat-label">Total Papers</div>
+                                <div class="stat-value" id="total-papers">0</div>
+                            </div>
+                            <div class="stat-item stat-completed">
+                                <div class="stat-label">Completed</div>
+                                <div class="stat-value" id="completed-papers">0</div>
+                            </div>
+                            <div class="stat-item stat-in-progress">
+                                <div class="stat-label">In Progress</div>
+                                <div class="stat-value" id="in-progress-papers">0</div>
+                            </div>
+                            <div class="stat-item stat-not-started">
+                                <div class="stat-label">Not Started</div>
+                                <div class="stat-value" id="not-started-papers">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continue Button -->
+                <div id="continue-section" style="display: none;">
+                    <button id="continue-evaluation-btn" class="continue-evaluation-btn">
+                        Continue Evaluation →
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Right Content Area -->
+            <main class="dashboard-main">
+                <!-- Empty state -->
+                <div id="empty-state" class="empty-state">
+                    <h3>No Evaluator Selected</h3>
+                    <p>Please select an evaluator from the left sidebar to view their dashboard.</p>
+                </div>
+
+                <!-- Research Area Distribution Chart -->
+                <div id="chart-section" class="dashboard-section" style="display: none;">
+                    <h2>Distribution by Research Area</h2>
+                    <div class="chart-container">
+                        <canvas id="research-area-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Papers Section -->
+                <div id="papers-section" style="display: none;">
+                    <!-- Statistics Bar -->
+                    <div class="papers-stats-bar" id="evaluator-stats-bar">
+                        <div class="stats-bar-item">
+                            <span class="stats-bar-label">Total Papers:</span>
+                            <span class="stats-bar-value" id="evaluator-total-results">0</span>
+                        </div>
+                        <div class="stats-bar-item status-completed2">
+                            <span class="stats-bar-label">Completed:</span>
+                            <span class="stats-bar-value" id="evaluator-completed-count">0</span>
+                        </div>
+                        <div class="stats-bar-item status-in-progress">
+                            <span class="stats-bar-label">In Progress:</span>
+                            <span class="stats-bar-value" id="evaluator-in-progress-count">0</span>
+                        </div>
+                        <div class="stats-bar-item status-not-started">
+                            <span class="stats-bar-label">Not Started:</span>
+                            <span class="stats-bar-value" id="evaluator-not-started-count">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Papers List -->
+                    <div id="evaluator-papers-list" class="papers-list">
+                        <!-- Papers will be dynamically loaded here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="evaluator-dashboard.js"></script>
+</body>
+</html>

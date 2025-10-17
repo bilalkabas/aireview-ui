@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Evaluation Console - Papers</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="theme.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Review Evaluation Console: Papers</h1>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+                    <span class="theme-toggle-icon" aria-hidden="true">☀️</span>
+                    <span class="theme-toggle-label">Light</span>
+                </button>
+                <a href="evaluator-dashboard.html" class="back-button">Evaluator Dashboard →</a>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Filters Sidebar -->
+            <aside class="filters">
+                <h2>Filter</h2>
+
+                <!-- Evaluator Filter -->
+                <div class="filter-section">
+                    <h3 class="filter-header collapsible">Evaluator</h3>
+                    <div class="filter-content">
+                        <input type="text" class="filter-search" id="evaluator-search" placeholder="Filter">
+                        <div class="checkbox-list" id="evaluator-list"></div>
+                    </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="filter-section">
+                    <h3 class="filter-header collapsible">Status</h3>
+                    <div class="filter-content">
+                        <div class="checkbox-list">
+                            <label>
+                                <input type="checkbox" class="status-filter" value="not_started"> Not started
+                            </label>
+                            <label>
+                                <input type="checkbox" class="status-filter" value="in_progress"> In progress
+                            </label>
+                            <label>
+                                <input type="checkbox" class="status-filter" value="completed"> Completed
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title Search -->
+                <div class="filter-section">
+                    <h3 class="filter-header collapsible">Search in title</h3>
+                    <div class="filter-content">
+                        <input type="text" class="filter-search" id="title-search" placeholder="Filter">
+                        <div class="selected-keywords" id="selected-title-keywords"></div>
+                    </div>
+                </div>
+
+                <!-- Keywords Filter -->
+                <div class="filter-section">
+                    <h3 class="filter-header collapsible">Keywords</h3>
+                    <div class="filter-content">
+                        <input type="text" class="filter-search" id="keyword-search" placeholder="Filter">
+                        <div class="selected-keywords" id="selected-keywords"></div>
+                        <div class="checkbox-list" id="keyword-list"></div>
+                    </div>
+                </div>
+
+                <!-- Research Area Filter -->
+                <div class="filter-section">
+                    <h3 class="filter-header collapsible">Research area</h3>
+                    <div class="filter-content">
+                        <input type="text" class="filter-search" id="area-search" placeholder="Filter">
+                        <div class="checkbox-list" id="area-list"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Papers List -->
+            <main class="papers-main">
+                <!-- Statistics Bar -->
+                <div class="papers-stats-bar" id="papers-stats-bar">
+                    <div class="stats-bar-item">
+                        <span class="stats-bar-label">Total Results:</span>
+                        <span class="stats-bar-value" id="total-results">0</span>
+                    </div>
+                    <div class="stats-bar-item status-completed2">
+                        <span class="stats-bar-label">Completed:</span>
+                        <span class="stats-bar-value" id="completed-count">0</span>
+                    </div>
+                    <div class="stats-bar-item status-in-progress">
+                        <span class="stats-bar-label">In Progress:</span>
+                        <span class="stats-bar-value" id="in-progress-count">0</span>
+                    </div>
+                    <div class="stats-bar-item status-not-started">
+                        <span class="stats-bar-label">Not Started:</span>
+                        <span class="stats-bar-value" id="not-started-count">0</span>
+                    </div>
+                </div>
+
+                <!-- Papers List -->
+                <div class="papers-list" id="papers-list">
+                    <!-- Papers will be dynamically loaded here -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
