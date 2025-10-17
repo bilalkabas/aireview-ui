@@ -1265,6 +1265,25 @@ body.resizing iframe {
     color: white;
 }
 
+.metric-comment {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    line-height: 1.4;
+}
+
+.metric-comment:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
 /* Tooltips */
 .tooltip {
     position: relative;

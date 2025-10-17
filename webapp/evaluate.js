@@ -4,6 +4,7 @@ let allPapers = [];
 let filteredPaperIndices = [];
 let currentFilteredIndex = -1;
 let appConfig = null; // Will be loaded from server
+const commentSaveTimeouts = {}; // Track pending saves for comment inputs
 
 // Load configuration from server
 async function loadConfig() {
@@ -436,6 +437,7 @@ function renderReviews() {
                     ${renderMetric('Constructiveness', 'constructiveness', index)}
                     ${renderMetric('Stance', 'stance', index)}
                     ${renderSourceMetric('Source', 'source', index)}
+                    ${renderCommentField(index)}
                 </div>
             </div>
         </details>
@@ -444,6 +446,9 @@ function renderReviews() {
 
     // Setup star ratings
     setupStarRatings();
+
+    // Setup comment inputs
+    setupCommentInputs();
 
     // Setup split view and harmonization controls
     setupSplitViewControls();
@@ -486,6 +491,18 @@ function renderSourceMetric(label, key, reviewIndex) {
                 <button class="source-btn ${isAI ? 'selected' : ''}" data-value="ai">AI</button>
                 <button class="source-btn ${isHuman ? 'selected' : ''}" data-value="human">Human</button>
             </div>
+        </div>
+    `;
+}
+
+// Render free-form comment input
+function renderCommentField(reviewIndex) {
+    return `
+        <div class="metric-row comment-row">
+            <div class="metric-label">
+                Comment
+            </div>
+            <textarea class="metric-comment" data-review="${reviewIndex}" placeholder="Auto saved as you type."></textarea>
         </div>
     `;
 }
@@ -536,6 +553,42 @@ function setupStarRatings() {
 
     // Setup tooltip positioning
     setupTooltips();
+}
+
+// Setup handlers for evaluator comment inputs
+function setupCommentInputs() {
+    document.querySelectorAll('.metric-comment').forEach(textarea => {
+        const reviewIndex = parseInt(textarea.dataset.review, 10);
+        if (Number.isNaN(reviewIndex) || !currentPaper.reviews[reviewIndex]) {
+            return;
+        }
+
+        const metrics = currentPaper.reviews[reviewIndex].metrics || {};
+        textarea.value = metrics.comment || '';
+
+        textarea.addEventListener('input', () => {
+            metrics.comment = textarea.value;
+
+            if (commentSaveTimeouts[reviewIndex]) {
+                clearTimeout(commentSaveTimeouts[reviewIndex]);
+            }
+
+            commentSaveTimeouts[reviewIndex] = setTimeout(async () => {
+                commentSaveTimeouts[reviewIndex] = null;
+                await saveEvaluation();
+            }, 600);
+        });
+
+        textarea.addEventListener('blur', async () => {
+            if (commentSaveTimeouts[reviewIndex]) {
+                clearTimeout(commentSaveTimeouts[reviewIndex]);
+                commentSaveTimeouts[reviewIndex] = null;
+            }
+
+            metrics.comment = textarea.value;
+            await saveEvaluation();
+        });
+    });
 }
 
 // Setup source buttons (AI vs Human)
