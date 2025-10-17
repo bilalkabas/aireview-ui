@@ -62,6 +62,7 @@ export WEBAPP_REQUIREMENTS_FILE="$REQUIREMENTS_FILE"
 
 PORT="${WEBAPP_PORT:-8090}"
 OPEN_BROWSER="true"
+DOWNLOAD_PDFS="true"
 OS_TYPE="unknown"
 declare -a PYTHON_BIN=()
 VENV_PYTHON=""
@@ -89,9 +90,10 @@ usage() {
 Usage: ./run [options]
 
 Options:
-  --port <number>    Port for the web server (default 8090 or WEBAPP_PORT env)
-  --no-browser       Do not automatically launch a browser window
-  -h, --help         Show this help message
+  --port <number>      Port for the web server (default 8090 or WEBAPP_PORT env)
+  --no-browser         Do not automatically launch a browser window
+  --skip-download      Skip downloading PDFs (PDFs are downloaded by default)
+  -h, --help           Show this help message
 EOF
 }
 
@@ -104,6 +106,9 @@ parse_args() {
                 ;;
             --no-browser)
                 OPEN_BROWSER="false"
+                ;;
+            --skip-download)
+                DOWNLOAD_PDFS="false"
                 ;;
             -h|--help)
                 usage
@@ -287,6 +292,15 @@ start_browser() {
     "$VENV_PYTHON" -m webbrowser "$url" >/dev/null 2>&1 &
 }
 
+download_pdfs() {
+    if [[ "$DOWNLOAD_PDFS" == "true" ]]; then
+        echo "Downloading PDFs from remote URLs..."
+        cd "$WEBAPP_DIR"
+        "$VENV_PYTHON" downloader.py
+        echo ""
+    fi
+}
+
 start_server() {
     echo "Starting Review Evaluation Console server on port $PORT..."
     if [[ "$OPEN_BROWSER" == "true" ]]; then
@@ -310,6 +324,7 @@ main() {
     create_venv
     echo "Virtual environment: $VENV_PYTHON"
     install_requirements
+    download_pdfs
     start_server
 }
 

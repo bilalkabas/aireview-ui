@@ -23,8 +23,8 @@ metrics_defaults = {
 with open(f"../{json_path}", "r") as f:
     data = json.load(f)
     for item in data:
-        for reviev in item["reviews"]:
-            reviev["metrics"] = metrics_defaults
+        for review in item["reviews"]:
+            review["metrics"] = metrics_defaults
 
 # Overwrite the new JSON
 with open(f"../{json_path}", "w") as f:
