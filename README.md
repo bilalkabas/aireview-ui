@@ -23,6 +23,12 @@ git clone https://github.com/bilalkabas/aireview-ui.git
 
 > **macOS note:** If Homebrew isn’t installed, the script stops and asks you to install Python 3 manually (from https://www.python.org/downloads/) before rerunning.
 
+## Troubleshooting
+
+**macOS: SSL certificate verify failed**
+- Error: `urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] ...>`.
+- Fix (python.org build): in Terminal run `open "/Applications/Python 3.11/Install Certificates.command"` (adjust `3.11` according to your Python version under `/Applications`).
+
 ## What the `run` Script Does
 - Loads configuration from `.env` (paths, port, etc.) so the server finds reviews and PDFs no matter where the repo lives.
 - Detects Python 3.8+; if it is missing, it calls the platform package manager (Homebrew, apt, winget, …) and may prompt for admin rights.
