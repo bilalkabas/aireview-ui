@@ -819,6 +819,41 @@ body.resizing iframe {
     margin-bottom: 15px;
 }
 
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.reviews-header h3 {
+    margin: 0;
+}
+
+.toggle-all-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-all-btn:hover {
+    background: var(--color-hover);
+    border-color: var(--color-text-tertiary);
+    color: var(--color-text-primary);
+}
+
+.toggle-all-btn svg {
+    transition: transform 0.2s ease;
+}
+
 .review-item {
     background: transparent;
     margin-bottom: 15px;

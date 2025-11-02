@@ -19,7 +19,10 @@ async function loadConfig() {
             showHarmonizedByDefault: true,
             defaultHarmonizationModel: 'gpt-4o-mini',
             enableModelDropdown: true,
-            enableSplitView: true
+            enableSplitView: true,
+            showReviewerType: true,
+            shuffleReviews: false,
+            shuffleSeed: 42
         };
     }
 }
@@ -212,6 +215,9 @@ function navigateToPaper(paperIndex) {
 document.getElementById('prev-paper-btn').addEventListener('click', navigateToPreviousPaper);
 document.getElementById('next-paper-btn').addEventListener('click', navigateToNextPaper);
 
+// Setup toggle all reviews button
+document.getElementById('toggle-all-reviews').addEventListener('click', toggleAllReviews);
+
 // Add keyboard shortcuts
 document.addEventListener('keydown', (e) => {
     // Left arrow or 'p' for previous
@@ -354,6 +360,57 @@ function createStatusBadge(status, completed, total) {
     `;
 }
 
+// Seeded random number generator (for reproducible shuffling)
+function seededRandom(seed) {
+    let state = seed;
+    return function() {
+        state = (state * 1103515245 + 12345) & 0x7fffffff;
+        return state / 0x7fffffff;
+    };
+}
+
+// Shuffle array using Fisher-Yates algorithm with a seeded RNG
+function shuffleWithSeed(array, seed) {
+    const rng = seededRandom(seed);
+    const shuffled = [...array]; // Create a copy
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+}
+
+// Toggle all reviews open/closed
+function toggleAllReviews() {
+    const reviewItems = document.querySelectorAll('.review-item');
+    const toggleBtn = document.getElementById('toggle-all-reviews');
+    const toggleText = toggleBtn.querySelector('span');
+    const toggleIcon = toggleBtn.querySelector('svg polyline');
+
+    if (reviewItems.length === 0) return;
+
+    // Check if any reviews are open
+    const anyOpen = Array.from(reviewItems).some(item => item.open);
+
+    if (anyOpen) {
+        // Collapse all
+        reviewItems.forEach(item => item.open = false);
+        toggleText.textContent = 'Expand All';
+        toggleBtn.title = 'Expand all reviews';
+        // Rotate icon 180 degrees (pointing right)
+        toggleIcon.setAttribute('points', '9 18 15 12 9 6');
+    } else {
+        // Expand all
+        reviewItems.forEach(item => item.open = true);
+        toggleText.textContent = 'Collapse All';
+        toggleBtn.title = 'Collapse all reviews';
+        // Reset icon to pointing down
+        toggleIcon.setAttribute('points', '6 9 12 15 18 9');
+    }
+}
+
 // Render reviews
 function renderReviews() {
     const container = document.getElementById('reviews-list');
@@ -363,7 +420,30 @@ function renderReviews() {
         return;
     }
 
-    container.innerHTML = currentPaper.reviews.map((review, index) => {
+    // Shuffle reviews if enabled
+    let reviewsToRender = currentPaper.reviews;
+    if (appConfig && appConfig.shuffleReviews) {
+        // Get current paper index from URL
+        const params = new URLSearchParams(window.location.search);
+        const paperIndex = parseInt(params.get('paper')) || 0;
+
+        // Create a unique seed for this paper by combining base seed with paper index
+        const paperSeed = appConfig.shuffleSeed + paperIndex;
+
+        // Create array of [review, originalIndex] pairs
+        const reviewsWithIndices = currentPaper.reviews.map((review, idx) => ({
+            review,
+            originalIndex: idx
+        }));
+
+        // Shuffle the array
+        const shuffled = shuffleWithSeed(reviewsWithIndices, paperSeed);
+        reviewsToRender = shuffled.map(item => item.review);
+
+        console.log('Reviews shuffled with seed:', paperSeed, '(base seed:', appConfig.shuffleSeed, '+ paper index:', paperIndex + ')');
+    }
+
+    container.innerHTML = reviewsToRender.map((review, index) => {
         // Check if harmonization data exists
         const hasHarmonization = review.harmonization && review.harmonization.length > 0;
 
@@ -415,10 +495,12 @@ function renderReviews() {
             `;
         }
 
+        const reviewerType = (appConfig && appConfig.showReviewerType && review.reviewer) ? `[${review.reviewer}]` : '';
+
         return `
         <details class="review-item" open data-review-index="${index}">
             <summary class="review-header">
-                <span>Review #${index + 1}</span>
+                <span>Review #${index + 1} ${reviewerType}</span>
                 ${hasHarmonization && (harmonizationDropdown || splitViewButton) ? `
                     <div class="review-header-actions">
                         ${harmonizationDropdown}

@@ -68,7 +68,10 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                     'showHarmonizedByDefault': os.environ.get('WEBAPP_SHOW_HARMONIZED_BY_DEFAULT', 'true').lower() == 'true',
                     'defaultHarmonizationModel': os.environ.get('WEBAPP_DEFAULT_HARMONIZATION_MODEL', 'gpt-4o-mini'),
                     'enableModelDropdown': os.environ.get('WEBAPP_ENABLE_MODEL_DROPDOWN', 'true').lower() == 'true',
-                    'enableSplitView': os.environ.get('WEBAPP_ENABLE_SPLIT_VIEW', 'true').lower() == 'true'
+                    'enableSplitView': os.environ.get('WEBAPP_ENABLE_SPLIT_VIEW', 'true').lower() == 'true',
+                    'showReviewerType': os.environ.get('WEBAPP_SHOW_REVIEWER_TYPE', 'true').lower() == 'true',
+                    'shuffleReviews': os.environ.get('WEBAPP_SHUFFLE_REVIEWS', 'false').lower() == 'true',
+                    'shuffleSeed': int(os.environ.get('WEBAPP_SHUFFLE_SEED', '42'))
                 }
 
                 self.send_response(200)

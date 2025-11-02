@@ -25,6 +25,8 @@ with open(f"../{json_path}", "r") as f:
     for item in data:
         for review in item["reviews"]:
             review["metrics"] = metrics_defaults
+        
+        item["status"] = "not_started"
 
 # Overwrite the new JSON
 with open(f"../{json_path}", "w") as f:

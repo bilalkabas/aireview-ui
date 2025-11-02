@@ -1,3 +1,5 @@
 pdfs
 .venv/
 __pycache__/
+data/
+statistics_output/
