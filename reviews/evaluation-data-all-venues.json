@@ -622,7 +622,7 @@
     "status": "not_started",
     "evaluators": [
       "Luping",
-      "Justin"
+      "Bernhard"
     ],
     "primary_area": [
       "foundation or frontier models, including LLMs"
@@ -882,6 +882,18 @@
             "similarity_scores": []
           }
         ]
+      },
+      {
+        "text": "## Synopsis of the paper\n\nThis paper introduces MedTrinity-25M, a large-scale multimodal medical dataset containing over 25 million image-ROI-description triplets across 10 modalities and 65+ diseases. The authors develop an automated pipeline that generates multigranular annotations without requiring paired text descriptions, using metadata integration for coarse captions, expert models for ROI localization, and medical knowledge retrieval combined with multimodal large language models (MLLMs) for textual description generation. The resulting dataset provides structured annotations covering modality, organ detection, ROI analysis, lesion texture, and region-wise correlations. To demonstrate effectiveness, they propose LLaVA-Tri, achieving state-of-the-art performance on three medical VQA benchmarks: VQA-RAD (81.6%), SLAKE (87.8%), and PathVQA (82.8%). The dataset aims to support various medical AI tasks including captioning, report generation, classification, and segmentation.\n\n## Weaknesses\n\n• **Limited Technical Innovation in Core Methods**\n  - The pipeline primarily combines existing techniques (metadata integration, expert segmentation models, RAG) rather than introducing novel methodological contributions (Section 3.2, Figure 2)\n  - ROI localization relies entirely on pre-existing expert models without adaptation for cross-modal consistency (Section 3.2.1, Table 6)\n  - The multigranular annotation framework lacks formal mathematical formulation or theoretical justification for its five-attribute structure (Section 3.1)\n\n• **Insufficient Validation of Data Quality**\n  - Expert evaluation conducted on only 200 samples (0.0008% of dataset) provides inadequate statistical power for quality assessment (Table 2)\n  - No inter-annotator agreement metrics or consistency analysis across the 30+ diverse data sources (Section 3.3, Table 5)\n  - LLaVA-Medcap model used for generation is trained on only 200K samples, raising concerns about generalization to 25M samples (Section 3.2.2)\n\n• **Experimental Design Limitations**\n  - Evaluation limited to three VQA datasets without assessment on other claimed supported tasks like segmentation or classification (Section 4, Table 3)\n  - No comparison with other large-scale automated annotation approaches or ablation studies on pipeline components (Section 4.2)\n  - Missing analysis of computational costs, scalability, or practical deployment considerations for the proposed pipeline (No direct evidence found in the manuscript)\n\n• **Methodological Inconsistencies and Missing Details**\n  - ROI coordinate system description mentions \"left-right reversal\" for certain modalities without clear specification of affected cases (Section 3.2.1, Figure 6)\n  - Knowledge retrieval uses fixed top-8 snippets without justification or sensitivity analysis (Section 3.2.1)\n  - Prompt template relies on complex three-level hierarchical structure without validation of prompt effectiveness or comparison with simpler alternatives (Appendix F, Figure 14)\n\n## Suggestions for Improvement\n\n• **Enhance Technical Methodology**\n  - Develop novel cross-modal ROI localization techniques that ensure consistency across different imaging modalities rather than relying solely on existing expert models\n  - Provide formal mathematical definitions for the multigranular annotation framework and theoretical analysis of the five-attribute structure's completeness\n  - Introduce adaptive knowledge retrieval mechanisms that dynamically adjust the number and relevance of retrieved snippets based on image complexity\n\n• **Strengthen Quality Validation Framework**\n  - Expand expert evaluation to at least 1000+ samples (0.004% minimum) with multiple expert annotators and inter-rater reliability metrics\n  - Implement systematic quality control across all 30+ data sources with standardized evaluation protocols and consistency measures\n  - Validate LLaVA-Medcap's performance on larger held-out sets and provide uncertainty quantification for generated descriptions\n\n• **Broaden Experimental Evaluation**\n  - Demonstrate dataset effectiveness on segmentation and classification tasks as claimed, not just VQA benchmarks\n  - Include comprehensive ablation studies comparing different pipeline components and alternative automated annotation approaches\n  - Provide detailed computational cost analysis, processing time metrics, and scalability assessments for practical deployment scenarios\n\n• **Improve Technical Specification and Consistency**\n  - Clearly specify which modalities are affected by coordinate system reversals with explicit mapping guidelines and validation procedures\n  - Conduct systematic analysis of optimal knowledge retrieval parameters including snippet count, similarity thresholds, and retrieval strategies\n  - Validate the three-level prompt structure through controlled experiments comparing against simpler prompting approaches and measuring generation quality",
+        "reviewer": "ai/claude-sonnet-4-20250514",
+        "metrics": {
+          "coverage": 0,
+          "specificity": 0,
+          "correctness": 0,
+          "constructiveness": 0,
+          "stance": 0,
+          "source": ""
+        }
       }
     ],
     "authors": [
@@ -1812,8 +1824,8 @@
     "title": "Synthesizing Realistic fMRI: A Physiological Dynamics-Driven Hierarchical Diffusion Model for Efficient fMRI Acquisition",
     "status": "not_started",
     "evaluators": [
-      "Bernhard",
-      "Tolga"
+      "Tolga",
+      "Justin"
     ],
     "primary_area": [
       "learning on time series and dynamical systems"
@@ -2863,7 +2875,7 @@
     "status": "not_started",
     "evaluators": [
       "Luping",
-      "Justin"
+      "Bernhard"
     ],
     "primary_area": [
       "foundation or frontier models, including LLMs"
@@ -3620,8 +3632,8 @@
     "title": "SeLoRA: Self-Expanding Low-Rank Adaptation of Latent Diffusion Model for Medical Image Synthesis",
     "status": "not_started",
     "evaluators": [
-      "Bernhard",
-      "Tolga"
+      "Tolga",
+      "Justin"
     ],
     "primary_area": [
       "applications to computer vision, audio, language, and other modalities"
@@ -4077,8 +4089,8 @@
     "title": "Build your own cell: Diffusion Models for Multichannel 3D Microscopy Image Generation",
     "status": "not_started",
     "evaluators": [
-      "Bernhard",
-      "Tolga"
+      "Tolga",
+      "Justin"
     ],
     "primary_area": [
       "applications to physical sciences (physics, chemistry, biology, etc.)"
@@ -4228,7 +4240,7 @@
     "status": "not_started",
     "evaluators": [
       "Luping",
-      "Justin"
+      "Bernhard"
     ],
     "primary_area": [
       "foundation or frontier models, including LLMs"
