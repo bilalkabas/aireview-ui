@@ -1319,6 +1319,32 @@ body.resizing iframe {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
+.clear-evaluation-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clear-evaluation-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.clear-evaluation-btn svg {
+    flex-shrink: 0;
+}
+
 /* Tooltips */
 .tooltip {
     position: relative;

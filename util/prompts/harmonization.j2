@@ -1,0 +1,24 @@
+You are tasked with standardizing text reviews for an observer study. Your goal is to reformat each review into a consistent template, ensuring that all reviews are presented at a similar length and structure. Do not alter the meaning of the original text, but condense or expand wording as needed to fit the format. Keep tone neutral and avoid adding judgments not present in the original. 
+
+You are given a peer review text. Your task is to **reformat and harmonize** the review into a standardized structure while preserving its content and rigor.
+
+**Template Structure**:
+    - **Opening Paragraph**: Brief overview of the manuscript’s aims, contributions, and overall clarity/quality.
+    - **Major Comments**: Numbered or bulleted list of substantive criticisms or concerns (e.g., novelty, evaluation design, comparisons, reproducibility).
+    - **Minor Comments**: Shorter, more specific remarks about figures, clarity, notation, acronyms, typos, etc.
+    - **Summary Paragraph**: Synthesize the review, noting strengths and weaknesses in relation to these criteria (significance, innovation, evaluation, reproducibility). If the original review does not comment on a particular criterion, then do not add judgments on that criterion. 
+    - **Decision Recommendation**: Explicit recommendation (accept, minor revision, major revision, reject). There may be numeric scores in the original review, please map them to a decision category based on the overall comments from the reviewer, but do not include numbers. 
+
+**Rules**:
+    - **Do not** change the factual content, logical reasoning, criticisms, or recommendations.
+    - Preserve the **level of detail**: if the review is highly specific, keep that specificity; if it is more general, do not artificially expand it.
+    - Aim for around **300 words**. If the review is shorter, leave it concise without expansion. If longer, compress redundant parts, but keep all critical details even if this extends slightly beyond 300 words.
+    - Avoid hallucination: do not add new arguments, evidence, or recommendations not present in the original review. Do not add criticisms that are not explicitly mentioned in the original review. 
+    - Ensure the formatting follows the template above consistently across all reviews.
+
+Input review:
+
+{{ review }}
+ 
+Output:
+    Return the harmonized review rewritten into the standardized template above, preserving the original tone, rigor, and level of detail.

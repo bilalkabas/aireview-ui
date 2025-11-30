@@ -51,6 +51,36 @@ def collect_decision_statistics(data):
     return overall_decisions, dict(per_evaluator_decisions)
 
 
+def collect_model_statistics(data):
+    """
+    Collect statistics about how many papers each AI model has reviewed.
+
+    Args:
+        data: List of paper objects
+
+    Returns:
+        dict: Mapping of model names to number of papers reviewed
+    """
+    model_paper_counts = defaultdict(set)  # Use set to avoid counting same paper multiple times
+
+    for paper_idx, paper in enumerate(data):
+        reviews = paper.get('reviews', [])
+
+        for review in reviews:
+            reviewer = review.get('reviewer', '')
+
+            # Check if this is an AI review
+            if reviewer.startswith('ai/'):
+                # Extract model name (remove "ai/" prefix)
+                model_name = reviewer[3:]  # Remove "ai/" prefix
+                model_paper_counts[model_name].add(paper_idx)
+
+    # Convert sets to counts
+    model_counts = {model: len(papers) for model, papers in model_paper_counts.items()}
+
+    return model_counts
+
+
 def plot_overall_histogram(decisions, output_path=None):
     """
     Plot histogram of all paper decisions.
@@ -170,8 +200,52 @@ def plot_per_evaluator_histograms(per_evaluator_decisions, output_dir=None):
     plt.close()
 
 
-def print_statistics(overall_decisions, per_evaluator_decisions):
-    """Print detailed statistics about decisions."""
+def plot_model_coverage(model_counts, output_path=None):
+    """
+    Plot bar chart showing how many papers each AI model has reviewed.
+
+    Args:
+        model_counts: Dict mapping model names to number of papers reviewed
+        output_path: Optional path to save the figure
+    """
+    if not model_counts:
+        print("Warning: No model data to plot")
+        return
+
+    # Sort models by number of papers (descending)
+    sorted_models = sorted(model_counts.items(), key=lambda x: x[1], reverse=True)
+    model_names = [m[0] for m in sorted_models]
+    paper_counts = [m[1] for m in sorted_models]
+
+    # Create figure
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(range(len(model_names)), paper_counts, color='mediumseagreen', alpha=0.8, edgecolor='black')
+
+    # Customize plot
+    plt.xlabel('AI Model', fontsize=12, fontweight='bold')
+    plt.ylabel('Number of Papers Reviewed', fontsize=12, fontweight='bold')
+    plt.title('Papers Reviewed per AI Model', fontsize=14, fontweight='bold')
+    plt.xticks(range(len(model_names)), model_names, rotation=45, ha='right')
+    plt.grid(axis='y', alpha=0.3, linestyle='--')
+
+    # Add value labels on bars
+    for bar, count in zip(bars, paper_counts):
+        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5,
+                str(count), ha='center', va='bottom', fontsize=10, fontweight='bold')
+
+    plt.tight_layout()
+
+    if output_path:
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        print(f"Saved model coverage plot to {output_path}")
+    else:
+        plt.show()
+
+    plt.close()
+
+
+def print_statistics(overall_decisions, per_evaluator_decisions, model_counts=None):
+    """Print detailed statistics about decisions and models."""
     print("\n" + "="*70)
     print("OVERALL STATISTICS")
     print("="*70)
@@ -203,6 +277,20 @@ def print_statistics(overall_decisions, per_evaluator_decisions):
             percentage = (count / total_eval * 100) if total_eval > 0 else 0
             print(f"  {decision:.<50} {count:>4} ({percentage:>5.1f}%)")
 
+    # Print model statistics if provided
+    if model_counts:
+        print("\n" + "="*70)
+        print("AI MODEL STATISTICS")
+        print("="*70)
+
+        # Sort models by number of papers
+        sorted_models = sorted(model_counts.items(), key=lambda x: x[1], reverse=True)
+
+        print(f"\nTotal AI models: {len(sorted_models)}")
+        print("\nPapers reviewed per model:")
+        for model, count in sorted_models:
+            print(f"  {model:.<50} {count:>4} papers")
+
 
 def main():
     # Define file paths
@@ -219,9 +307,10 @@ def main():
 
     print("Collecting statistics...")
     overall_decisions, per_evaluator_decisions = collect_decision_statistics(data)
+    model_counts = collect_model_statistics(data)
 
     # Print statistics
-    print_statistics(overall_decisions, per_evaluator_decisions)
+    print_statistics(overall_decisions, per_evaluator_decisions, model_counts)
 
     # Generate plots
     print("\n" + "="*70)
@@ -238,6 +327,12 @@ def main():
         plot_per_evaluator_histograms(per_evaluator_decisions, output_dir)
     else:
         print("Warning: No per-evaluator decisions found in data")
+
+    if model_counts:
+        plot_model_coverage(model_counts,
+                           output_dir / 'model_coverage.png')
+    else:
+        print("Warning: No AI model data found")
 
     print(f"\n Done! All plots saved to {output_dir}/")
 

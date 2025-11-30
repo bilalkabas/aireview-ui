@@ -64,12 +64,15 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
         if self.path == '/config':
             # Serve configuration from environment variables
             try:
+                # Check if admin mode is enabled
+                admin_mode = os.environ.get('WEBAPP_ADMIN_MODE', 'false').lower() == 'true'
+
                 config = {
                     'showHarmonizedByDefault': os.environ.get('WEBAPP_SHOW_HARMONIZED_BY_DEFAULT', 'true').lower() == 'true',
                     'defaultHarmonizationModel': os.environ.get('WEBAPP_DEFAULT_HARMONIZATION_MODEL', 'gpt-4o-mini'),
-                    'enableModelDropdown': os.environ.get('WEBAPP_ENABLE_MODEL_DROPDOWN', 'true').lower() == 'true',
-                    'enableSplitView': os.environ.get('WEBAPP_ENABLE_SPLIT_VIEW', 'true').lower() == 'true',
-                    'showReviewerType': os.environ.get('WEBAPP_SHOW_REVIEWER_TYPE', 'true').lower() == 'true',
+                    'enableModelDropdown': admin_mode,
+                    'enableSplitView': admin_mode,
+                    'showReviewerType': admin_mode,
                     'shuffleReviews': os.environ.get('WEBAPP_SHUFFLE_REVIEWS', 'false').lower() == 'true',
                     'shuffleSeed': int(os.environ.get('WEBAPP_SHUFFLE_SEED', '42'))
                 }

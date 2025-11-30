@@ -18,9 +18,9 @@ async function loadConfig() {
         appConfig = {
             showHarmonizedByDefault: true,
             defaultHarmonizationModel: 'gpt-4o-mini',
-            enableModelDropdown: true,
-            enableSplitView: true,
-            showReviewerType: true,
+            enableModelDropdown: false,
+            enableSplitView: false,
+            showReviewerType: false,
             shuffleReviews: false,
             shuffleSeed: 42
         };
@@ -532,6 +532,9 @@ function renderReviews() {
     // Setup comment inputs
     setupCommentInputs();
 
+    // Setup clear evaluation buttons
+    setupClearEvaluationButtons();
+
     // Setup split view and harmonization controls
     setupSplitViewControls();
 }
@@ -585,6 +588,14 @@ function renderCommentField(reviewIndex) {
                 Comment
             </div>
             <textarea class="metric-comment" data-review="${reviewIndex}" placeholder="Auto saved as you type."></textarea>
+        </div>
+        <div>
+            <button class="clear-evaluation-btn" data-review="${reviewIndex}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+                Clear Evaluation
+            </button>
         </div>
     `;
 }
@@ -669,6 +680,38 @@ function setupCommentInputs() {
 
             metrics.comment = textarea.value;
             await saveEvaluation();
+        });
+    });
+}
+
+// Setup clear evaluation buttons
+function setupClearEvaluationButtons() {
+    document.querySelectorAll('.clear-evaluation-btn').forEach(button => {
+        const reviewIndex = parseInt(button.dataset.review, 10);
+        if (Number.isNaN(reviewIndex) || !currentPaper.reviews[reviewIndex]) {
+            return;
+        }
+
+        button.addEventListener('click', async () => {
+            // Confirm before clearing
+            if (!confirm('Are you sure you want to clear all evaluation data for this review?')) {
+                return;
+            }
+
+            const metrics = currentPaper.reviews[reviewIndex].metrics || {};
+
+            // Clear all metrics
+            metrics.coverage = 0;
+            metrics.specificity = 0;
+            metrics.correctness = 0;
+            metrics.constructiveness = 0;
+            metrics.stance = 0;
+            metrics.source = '';
+            metrics.comment = '';
+
+            // Save and re-render
+            await saveEvaluation();
+            renderReviews();
         });
     });
 }
