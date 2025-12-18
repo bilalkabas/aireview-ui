@@ -33,7 +33,7 @@ git clone https://github.com/bilalkabas/aireview-ui.git
 - Loads configuration from `.env` (paths, port, etc.) so the server finds reviews and PDFs no matter where the repo lives.
 - Detects Python 3.8+; if it is missing, it calls the platform package manager (Homebrew, apt, winget, …) and may prompt for admin rights.
 - Creates or reuses a virtual environment at `.venv`, upgrades `pip`, and installs dependencies from `webapp/requirements.txt`.
-- **Downloads PDFs** from remote URLs (if configured in your reviews JSON) - automatically skips files that already exist.
+- **Downloads PDFs** from GitHub releases (configured via `WEBAPP_GITHUB_RELEASES_PDF_URL` in `.env`) - automatically skips if files already exist.
 - Exports the resolved paths for the backend, starts `server.py`, and opens the evaluation console in your default browser.
 - Supports overrides like `./run --port 8100`, `./run --no-browser`, or `./run --skip-download` when you need a custom setup.
 

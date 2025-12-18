@@ -1,82 +1,92 @@
 import os
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import zipfile
 from tqdm import tqdm
 
 
-def download_pdf(remote_url, local_url):
-    # Create directory structure for the local file if it doesn't exist
-    local_dir = os.path.dirname(local_url)
-    if local_dir:
-        os.makedirs(local_dir, exist_ok=True)
+def download_from_github_releases(github_url, extract_to):
+    """
+    Download PDFs from GitHub releases zip file.
 
-    # Check if already downloaded
-    if os.path.exists(local_url):
-        return (local_url, "exists")
+    Args:
+        github_url: URL to the pdfs.zip file on GitHub releases
+        extract_to: Directory to extract PDFs to
 
-    # Download PDF
+    Returns:
+        Number of PDFs extracted
+    """
+    temp_zip = os.path.join(extract_to, "temp_pdfs.zip")
+
     try:
-        req = urllib.request.Request(
-            remote_url,
-            headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-        )
-        with urllib.request.urlopen(req, timeout=30) as response:
-            pdf_content = response.read()
+        # Create extraction directory if it doesn't exist
+        os.makedirs(extract_to, exist_ok=True)
 
-        # Save to file
-        with open(local_url, 'wb') as f:
-            f.write(pdf_content)
+        # Check if PDFs already exist
+        existing_pdfs = [f for f in os.listdir(extract_to) if f.endswith('.pdf')] if os.path.exists(extract_to) else []
+        if existing_pdfs:
+            print(f"ℹ️  Found {len(existing_pdfs)} existing PDFs in {extract_to}")
+            print(f"   Skipping download from GitHub releases")
+            return len(existing_pdfs)
 
-        return (local_url, "downloaded")
+        print(f"📥 Downloading PDFs from GitHub releases...")
+        print(f"   URL: {github_url}")
 
+        # Download with progress
+        def progress_hook(block_count, block_size, total_size):
+            if total_size > 0:
+                downloaded = block_count * block_size
+                percent = min(100, (downloaded / total_size) * 100)
+                mb_downloaded = downloaded / (1024 * 1024)
+                mb_total = total_size / (1024 * 1024)
+                print(f"\r   Progress: {percent:.1f}% ({mb_downloaded:.1f} MB / {mb_total:.1f} MB)", end='', flush=True)
+
+        urllib.request.urlretrieve(github_url, temp_zip, reporthook=progress_hook)
+        print()  # New line after progress
+
+        # Extract zip
+        print(f"📦 Extracting PDFs to {extract_to}...")
+        with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
+            pdf_files = [f for f in zip_ref.namelist() if f.endswith('.pdf')]
+            print(f"   Found {len(pdf_files)} PDF files in archive")
+
+            # Extract with progress bar, flattening directory structure
+            with tqdm(total=len(pdf_files), desc="Extracting PDFs", unit="file") as pbar:
+                for file in pdf_files:
+                    # Get just the filename (without any directory path from zip)
+                    filename = os.path.basename(file)
+                    target_path = os.path.join(extract_to, filename)
+                    
+                    # Read from zip and write directly to target
+                    with zip_ref.open(file) as source, open(target_path, 'wb') as target:
+                        target.write(source.read())
+                    pbar.update(1)
+
+        # Clean up temp file
+        os.remove(temp_zip)
+
+        print(f"✅ Successfully extracted {len(pdf_files)} PDFs")
+        return len(pdf_files)
+
+    except urllib.error.URLError as e:
+        print(f"\n❌ Error downloading from GitHub: {e}")
+        print(f"   Make sure the URL is correct and you have internet connectivity")
+        if os.path.exists(temp_zip):
+            os.remove(temp_zip)
+        return 0
+    except zipfile.BadZipFile:
+        print(f"\n❌ Error: Downloaded file is not a valid zip archive")
+        if os.path.exists(temp_zip):
+            os.remove(temp_zip)
+        return 0
     except Exception as e:
-        print(f"    ✗ Error downloading {os.path.basename(local_url)}: {e}")
-        return (local_url, "failed")
-
-
-def download_pdfs_batch(remote_urls, local_urls, max_workers=5):
-    results = []
-    total = len(remote_urls)
-
-    if total == 0:
-        return results
-
-    downloaded = 0
-    skipped = 0
-    failed = 0
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all download tasks
-        future_to_info = {
-            executor.submit(download_pdf, remote_url, local_url): (remote_url, local_url)
-            for remote_url, local_url in zip(remote_urls, local_urls)
-        }
-
-        # Process completed downloads with progress bar
-        with tqdm(total=total, desc="Downloading PDFs", unit="file") as pbar:
-            for future in as_completed(future_to_info):
-                local_path, status = future.result()
-                results.append(local_path)
-
-                if status == "downloaded":
-                    downloaded += 1
-                elif status == "exists":
-                    skipped += 1
-                elif status == "failed":
-                    failed += 1
-
-                pbar.update(1)
-                pbar.set_postfix({"downloaded": downloaded, "skipped": skipped, "failed": failed})
-
-    print(f"✅ Download complete: {downloaded} new, {skipped} existing, {failed} failed")
-    return results
+        print(f"\n❌ Unexpected error: {e}")
+        if os.path.exists(temp_zip):
+            os.remove(temp_zip)
+        return 0
 
 
 if __name__ == "__main__":
     import dotenv
-    import json
 
     # Load environment variables
     # When run from ./run script, WEBAPP_ENV_FILE will be set
@@ -87,33 +97,19 @@ if __name__ == "__main__":
         dotenv.load_dotenv()
 
     # Get paths from environment (these are absolute paths set by ./run script)
-    json_path = os.getenv("WEBAPP_REVIEWS_JSON")
     project_root = os.getenv("WEBAPP_PROJECT_ROOT", os.path.dirname(os.path.dirname(__file__)))
+    pdfs_root = os.getenv("WEBAPP_PDFS_ROOT", os.path.join(project_root, "pdfs"))
 
-    if not json_path:
-        print("Error: WEBAPP_REVIEWS_JSON environment variable not set")
+    # Check for GitHub releases URL
+    github_releases_url = os.getenv("WEBAPP_GITHUB_RELEASES_PDF_URL")
+
+    if not github_releases_url:
+        print("❌ Error: WEBAPP_GITHUB_RELEASES_PDF_URL not set in .env file")
+        print("   Please set it to your GitHub releases PDF URL, for example:")
+        print("   WEBAPP_GITHUB_RELEASES_PDF_URL=https://github.com/user/repo/releases/download/pdfs/pdfs.zip")
         exit(1)
 
-    if not os.path.exists(json_path):
-        print(f"Error: Reviews JSON file not found at {json_path}")
-        exit(1)
-
-    # Get paper URLs
-    remote_urls = []
-    local_urls = []
-    with open(json_path, "r") as f:
-        data = json.load(f)
-        for item in data:
-            if "remote_url" in item and "url" in item:
-                remote_urls.append(item["remote_url"])
-                # Resolve local path relative to project root
-                local_path = item["url"]
-                if not os.path.isabs(local_path):
-                    local_path = os.path.join(project_root, local_path)
-                local_urls.append(local_path)
-
-    if len(remote_urls) == 0:
-        print("No PDFs to download (no items with 'remote_url' and 'url' found)")
-        exit(0)
-
-    pdf_paths = download_pdfs_batch(remote_urls, local_urls, max_workers=5)
+    # Download from GitHub releases
+    print(f"Downloading PDFs from GitHub releases")
+    print(f"Target directory: {pdfs_root}")
+    download_from_github_releases(github_releases_url, pdfs_root)
