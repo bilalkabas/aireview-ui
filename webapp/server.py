@@ -134,12 +134,20 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(pdf_content)
 
+            except (ConnectionResetError, BrokenPipeError):
+                # Client disconnected before PDF was sent (user navigated away, browser cancelled duplicate request)
+                # This is normal behavior, just log it quietly
+                print(f"Client disconnected during PDF serving")
             except Exception as e:
                 print(f"Error serving local PDF ({PDFS_ROOT}): {str(e)}")
-                self.send_response(500)
-                self.send_header('Content-type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(f'Error serving PDF: {str(e)}'.encode('utf-8'))
+                try:
+                    self.send_response(500)
+                    self.send_header('Content-type', 'text/plain')
+                    self.end_headers()
+                    self.wfile.write(f'Error serving PDF: {str(e)}'.encode('utf-8'))
+                except (ConnectionResetError, BrokenPipeError):
+                    # Client already disconnected, can't send error
+                    pass
 
         elif self.path.startswith('/pdf-proxy?url='):
             # PDF proxy to bypass CORS (for remote URLs)
