@@ -38,3 +38,20 @@ git clone https://github.com/bilalkabas/aireview-ui.git
 - Supports overrides like `./run --port 8100`, `./run --no-browser`, or `./run --skip-download` when you need a custom setup.
 
 If the automated installer cannot add Python on your machine, install Python 3 manually, and re-run the script.
+
+## Evaluation & Analysis
+
+To analyze the collected review data and generate performance reports (Human vs AI, Turing Tests, etc.):
+
+**Generate Comprehensive Reports**:
+Run the master evaluation script to generate reports (LaTeX and Markdown) across all normalization settings:
+
+```bash
+python -m eval.run_all_evaluations
+```
+Measurements and plots will be saved in `eval/report_output/` under subdirectories like `norm_none`, `norm_evaluator`, etc.
+
+**Outputs to check**:
+*   `eval/report_output/norm_<method>/report.md`: Readable Markdown report.
+*   `eval/report_output/norm_<method>/report.tex`: Source for PDF report.
+*   `eval/report_output/norm_<method>/plots/`: Visualization figures.
