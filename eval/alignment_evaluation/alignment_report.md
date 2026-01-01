@@ -78,3 +78,11 @@ Mean and Standard Deviation for each metric.
 #### BLEU (0-100)
 ![BLEU AI Models](plots/ai_models_bleu.png)
 
+## Analysis of Stanford Model Performance
+The Stanford model exhibits significantly lower lexical overlap scores (ROUGE-L: 0.134, BLEU: 0.237) compared to other models, despite maintaining high semantic correctness (LLM Score: 4.933).
+
+Qualitative analysis reveals that this discrepancy is primarily due to **structural formatting differences**:
+*   **Original Output**: The Stanford model produces reviews with specific headers (e.g., "Summary") and titles that differ from the target schema.
+*   **Harmonization Effect**: The harmonization process forces extensive rewriting to align with the required format (e.g., changing "Summary" to "**Opening Paragraph**").
+*   **Result**: This structural overhaul destroys n-gram matches (penalizing BLEU/ROUGE) while preserving the underlying semantic meaning (high LLM/Cosine scores).
+
