@@ -1,0 +1,297 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, linktoc=all}
+
+\title{AI Reviewer Evaluation Report}
+\author{Automated Analysis}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This report presents a comprehensive evaluation of AI reviewers compared to human performance.
+
+\section{Score Statistics}
+
+\subsection{Score Distributions}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plots/human_vs_ai_boxplot.png}
+    \caption{Distribution of Review Scores (Human vs AI).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{plots/radar_human_vs_ai.png}
+    \caption{Average Score Profile: Human vs AI.}
+\end{figure}
+
+\subsection{Per-Evaluator Statistics}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{plots/evaluator_boxplot.png}
+    \caption{Score Distribution by Evaluator.}
+\end{figure}
+
+\subsection{Per-Evaluator per Metric Statistics}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{plots/evaluator_per_metric_boxplot.png}
+    \caption{Score Distribution: Evaluator per Metric.}
+\end{figure}
+
+\section{Statistical Significance Tests}
+
+\subsection{Methodology}
+We confirm performance differences using Mann-Whitney U (unpaired), Wilcoxon Signed-Rank (paired), and assess variance equality with Levene's Test. Effect size is measured by Cliff's Delta.
+
+\subsection{Global Analysis (Human vs All AI)}
+
+\begin{table}[H]
+\centering
+\caption{Statistical Significance (Overall)}
+\label{tab:sig_global}
+\begin{tabular}{lllll}
+\toprule
+Metric & MW U ($p$) & Wilcoxon ($p$) & Levene ($p$) & Cliff's $\delta$ \\
+\midrule
+Coverage & $0.7241$ & $0.4175$ & $0.8742$ & -0.018 \\
+Specificity & $0.0217^{*}$ & $0.2737$ & $0.5070$ & +0.117 \\
+Correctness & $0.4835$ & $0.6623$ & $0.1881$ & +0.036 \\
+Constructiveness & $0.7039$ & $0.9531$ & $0.6165$ & +0.019 \\
+Stance & $0.3827$ & $0.2572$ & $0.7488$ & -0.044 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\subsection{Per-Model Analysis}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{plots/radar_models.png}
+    \caption{Performance Profile per AI Model.}
+\end{figure}
+\subsubsection{Model: claude-sonnet-4-20250514}
+
+\begin{table}[H]
+\centering
+\caption{Significance: Human vs claude-sonnet-4-20250514}
+\label{tab:sig_claude-sonnet-4-20250514}
+\begin{tabular}{lllll}
+\toprule
+Metric & MW U ($p$) & Wilcoxon ($p$) & Levene ($p$) & Cliff's $\delta$ \\
+\midrule
+Coverage & $0.8664$ & $0.7985$ & $0.7980$ & +0.014 \\
+Specificity & $0.1856$ & $0.4165$ & $0.7888$ & +0.110 \\
+Correctness & $0.3529$ & $0.5564$ & $0.3437$ & +0.078 \\
+Constructiveness & $0.3735$ & $0.4232$ & $0.6627$ & +0.072 \\
+Stance & $0.6614$ & $0.3867$ & $0.5408$ & -0.036 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+\subsubsection{Model: fudan}
+
+\begin{table}[H]
+\centering
+\caption{Significance: Human vs fudan}
+\label{tab:sig_fudan}
+\begin{tabular}{lllll}
+\toprule
+Metric & MW U ($p$) & Wilcoxon ($p$) & Levene ($p$) & Cliff's $\delta$ \\
+\midrule
+Coverage & $0.7530$ & $0.4057$ & $0.3417$ & -0.026 \\
+Specificity & $0.2909$ & $0.5735$ & $0.4535$ & +0.088 \\
+Correctness & $0.8901$ & $0.3814$ & $0.5545$ & -0.012 \\
+Constructiveness & $0.9900$ & $0.6510$ & $0.8864$ & -0.001 \\
+Stance & $0.4624$ & $0.1140$ & $0.6647$ & -0.060 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+\subsubsection{Model: gpt-5-chat-latest}
+
+\begin{table}[H]
+\centering
+\caption{Significance: Human vs gpt-5-chat-latest}
+\label{tab:sig_gpt-5-chat-latest}
+\begin{tabular}{lllll}
+\toprule
+Metric & MW U ($p$) & Wilcoxon ($p$) & Levene ($p$) & Cliff's $\delta$ \\
+\midrule
+Coverage & $0.9219$ & $0.7408$ & $0.9605$ & -0.008 \\
+Specificity & $0.1611$ & $0.3515$ & $0.7923$ & +0.117 \\
+Correctness & $0.4839$ & $0.4514$ & $0.1563$ & +0.059 \\
+Constructiveness & $0.9290$ & $0.7883$ & $0.6649$ & -0.007 \\
+Stance & $0.7482$ & $0.6087$ & $0.9569$ & -0.026 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+\subsubsection{Model: hkust-reviewer}
+
+\begin{table}[H]
+\centering
+\caption{Significance: Human vs hkust-reviewer}
+\label{tab:sig_hkust-reviewer}
+\begin{tabular}{lllll}
+\toprule
+Metric & MW U ($p$) & Wilcoxon ($p$) & Levene ($p$) & Cliff's $\delta$ \\
+\midrule
+Coverage & $0.1270$ & $0.0377^{*}$ & $0.9593$ & -0.127 \\
+Specificity & $0.5605$ & $0.9413$ & $0.8344$ & +0.049 \\
+Correctness & $0.8403$ & $0.9751$ & $0.2537$ & +0.017 \\
+Constructiveness & $0.3489$ & $0.1073$ & $0.6724$ & -0.076 \\
+Stance & $0.5280$ & $0.3445$ & $0.7068$ & -0.052 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+\subsubsection{Model: rpi}
+
+\begin{table}[H]
+\centering
+\caption{Significance: Human vs rpi}
+\label{tab:sig_rpi}
+\begin{tabular}{lllll}
+\toprule
+Metric & MW U ($p$) & Wilcoxon ($p$) & Levene ($p$) & Cliff's $\delta$ \\
+\midrule
+Coverage & $0.1246$ & $0.1091$ & $0.9605$ & +0.128 \\
+Specificity & $0.0373^{*}$ & $0.1521$ & $0.5647$ & +0.173 \\
+Correctness & $0.9384$ & $0.5887$ & $0.8645$ & +0.007 \\
+Constructiveness & $0.4924$ & $0.5881$ & $0.6649$ & +0.056 \\
+Stance & $0.4484$ & $0.3147$ & $0.1396$ & -0.062 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+\subsubsection{Model: stanford}
+
+\begin{table}[H]
+\centering
+\caption{Significance: Human vs stanford}
+\label{tab:sig_stanford}
+\begin{tabular}{lllll}
+\toprule
+Metric & MW U ($p$) & Wilcoxon ($p$) & Levene ($p$) & Cliff's $\delta$ \\
+\midrule
+Coverage & $0.2879$ & $0.1849$ & $0.5869$ & -0.088 \\
+Specificity & $0.0491^{*}$ & $0.2052$ & $0.1317$ & +0.163 \\
+Correctness & $0.4236$ & $0.4547$ & $0.1322$ & +0.067 \\
+Constructiveness & $0.3923$ & $0.5681$ & $0.3883$ & +0.069 \\
+Stance & $0.7529$ & $0.5875$ & $0.3647$ & -0.026 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+
+\section{Turing Test Analysis (AI Detection)}
+Evaluators were asked to guess if the review was written by AI or Human. We present the confusion matrices below.
+
+\begin{table}[H]
+\centering
+\caption{Turing Test Performance Metrics}
+\label{tab:tur_metrics}
+\begin{tabular}{lrrrr}
+\toprule
+Evaluator & Accuracy & Precision & Recall & F1 \\
+\midrule
+Bernhard & 0.667 & 0.667 & 1.000 & 0.800 \\
+Guang & 0.378 & 0.536 & 0.500 & 0.517 \\
+Justin & 0.600 & 0.658 & 0.833 & 0.735 \\
+Luping & 0.478 & 0.741 & 0.333 & 0.460 \\
+Tolga & 0.478 & 0.667 & 0.433 & 0.525 \\
+Yixuan & 0.567 & 0.769 & 0.500 & 0.606 \\
+Overall & 0.528 & 0.661 & 0.600 & 0.629 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/turing_cm_overall.png}
+    \caption{Overall Confusion Matrix (AI Detection).}
+\end{figure}
+\subsection{Per-Evaluator Confusion Matrices}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{plots/turing_cm_evaluators_combined.png}
+    \caption{Confusion Matrices per Evaluator.}
+\end{figure}
+
+\section{Inter-Evaluator Agreement}
+Cohen's Kappa agreement between evaluators on review scores (discretized).
+
+\begin{table}[H]
+\centering
+\caption{Pairwise Cohen's Kappa Agreement}
+\label{tab:kappa}
+\begin{tabular}{lllllll}
+\toprule
+Evaluator & Bernhard & Guang & Justin & Luping & Tolga & Yixuan \\
+\midrule
+Bernhard & - & -0.00 & - & 0.00 & 0.03 & - \\
+Guang & -0.00 & - & -0.08 & -0.01 & - & 0.26 \\
+Justin & - & -0.08 & - & - & 0.13 & -0.06 \\
+Luping & 0.00 & -0.01 & - & - & - & 0.23 \\
+Tolga & 0.03 & - & 0.13 & - & - & 0.11 \\
+Yixuan & - & 0.26 & -0.06 & 0.23 & 0.11 & - \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\appendix
+\newpage
+\section{Appendix: Guide to Interpretations}
+
+\subsection{Interpreting Box Plots}
+The box plots in this report visualize the distribution of review scores.
+\begin{itemize}
+    \item \textbf{Box}: Represents the Interquartile Range (IQR), spanning from the 25th percentile ($Q1$) to the 75th percentile ($Q3$). It contains the middle 50\% of the data.
+    \item \textbf{Median}: The line inside the box marks the median score (50th percentile).
+    \item \textbf{Whiskers}: Extend from the box to the most extreme data points that are not considered outliers. Typically, this is $1.5 \times IQR$.
+    \item \textbf{Empty Circles (Outliers)}: Points lying beyond the whiskers are plotted individually as empty circles. These represent outlier scores that are unusually high or low compared to the rest of the distribution.
+\end{itemize}
+
+\subsection{Statistical Methodology Details}
+This section explains the intuition and computation behind the statistical tests used.
+
+\subsubsection{Mann-Whitney U Test}
+\textbf{Intuition}: A non-parametric test for independent samples (e.g., Human vs AI scores across different papers). It assesses whether one group's values are stochastically larger than the other's. It does not assume a normal distribution.
+\textbf{Computation}: All observations are ranked together. The sum of ranks for each group is calculated. The $U$ statistic is derived from these rank sums, comparing the number of times a value from one group precedes a value from the other.
+
+\subsubsection{Wilcoxon Signed-Rank Test}
+\textbf{Intuition}: A non-parametric paired test used for per-model comparisons where we have matched scores (Human and AI reviewing the \textit{same} paper). It tests if the distribution of differences is symmetric about zero.
+\textbf{Computation}: Differences between paired scores ($d_i = x_{human} - x_{ai}$) are calculated. Absolute differences $|d_i|$ are ranked. Ranks are signed according to the sign of $d_i$. The test statistic $W$ is the sum of positive ranks.
+
+\subsubsection{Levene's Test}
+\textbf{Intuition}: Tests the null hypothesis that the variances (spread) of the two groups are equal (Homogeneity of Variance).
+\textbf{Computation}: It performs an Analysis of Variance (ANOVA) on the absolute deviations of scores from their group means (or medians). A significant $p$-value suggests the groups have different consistency levels.
+
+\subsubsection{Cliff's Delta ($\delta$)}
+\textbf{Intuition}: An effect size measure quantifying the magnitude of difference between two groups. It represents the probability that a randomly selected value from one group is greater than one from the other, minus the reverse probability. values range from -1 to +1.
+\textbf{Computation}:
+\[ \delta = \frac{\#(x_H > x_A) - \#(x_H < x_A)}{n_H \times n_A} \]
+where $x_H$ and $x_A$ are scores from Human and AI groups respectively. 
+Interpretation: $|\delta| < 0.147$ (Negligible), $< 0.33$ (Small), $< 0.474$ (Medium), else (Large).
+
+\subsubsection{Cohen's Kappa ($\kappa$)}
+\textbf{Intuition}: Measures inter-rater agreement for categorical items, correcting for agreement occurring by chance.
+\textbf{Computation}:
+\[ \kappa = \frac{p_o - p_e}{1 - p_e} \]
+where $p_o$ is the relative observed agreement, and $p_e$ is the hypothetical probability of chance agreement based on marginal frequencies.
+
+\end{document}
