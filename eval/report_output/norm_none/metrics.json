@@ -585,53 +585,105 @@
     }
   },
   "agreement": {
-    "Bernhard": {
-      "Bernhard": NaN,
-      "Guang": -0.0007857860042781439,
-      "Justin": NaN,
-      "Luping": 0.0011593685900294082,
-      "Tolga": 0.03337169159953968,
-      "Yixuan": NaN
+    "cohen_kappa": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": -0.0007857860042781439,
+        "Justin": NaN,
+        "Luping": 0.0011593685900294082,
+        "Tolga": 0.03337169159953968,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": -0.0007857860042781439,
+        "Guang": NaN,
+        "Justin": -0.08098833218943025,
+        "Luping": -0.006116207951070374,
+        "Tolga": NaN,
+        "Yixuan": 0.2649670880785707
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": -0.08098833218943025,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": 0.1299641160315137,
+        "Yixuan": -0.06217616580310881
+      },
+      "Luping": {
+        "Bernhard": 0.0011593685900294082,
+        "Guang": -0.006116207951070374,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.23364103210358833
+      },
+      "Tolga": {
+        "Bernhard": 0.03337169159953968,
+        "Guang": NaN,
+        "Justin": 0.1299641160315137,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.10828025477707004
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.2649670880785707,
+        "Justin": -0.06217616580310881,
+        "Luping": 0.23364103210358833,
+        "Tolga": 0.10828025477707004,
+        "Yixuan": NaN
+      }
     },
-    "Guang": {
-      "Bernhard": -0.0007857860042781439,
-      "Guang": NaN,
-      "Justin": -0.08098833218943025,
-      "Luping": -0.006116207951070374,
-      "Tolga": NaN,
-      "Yixuan": 0.2649670880785707
-    },
-    "Justin": {
-      "Bernhard": NaN,
-      "Guang": -0.08098833218943025,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": 0.1299641160315137,
-      "Yixuan": -0.06217616580310881
-    },
-    "Luping": {
-      "Bernhard": 0.0011593685900294082,
-      "Guang": -0.006116207951070374,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.23364103210358833
-    },
-    "Tolga": {
-      "Bernhard": 0.03337169159953968,
-      "Guang": NaN,
-      "Justin": 0.1299641160315137,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.10828025477707004
-    },
-    "Yixuan": {
-      "Bernhard": NaN,
-      "Guang": 0.2649670880785707,
-      "Justin": -0.06217616580310881,
-      "Luping": 0.23364103210358833,
-      "Tolga": 0.10828025477707004,
-      "Yixuan": NaN
+    "gwet_ac2": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": -0.3386470468015536,
+        "Justin": NaN,
+        "Luping": -0.5318334131163238,
+        "Tolga": -0.22538293216630237,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": -0.3386470468015536,
+        "Guang": NaN,
+        "Justin": -0.09337035751475202,
+        "Luping": -0.29783037475345153,
+        "Tolga": NaN,
+        "Yixuan": 0.26114582786325624
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": -0.09337035751475202,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": 0.0698073172299969,
+        "Yixuan": -0.1530735235034154
+      },
+      "Luping": {
+        "Bernhard": -0.5318334131163238,
+        "Guang": -0.29783037475345153,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.1615393895524185
+      },
+      "Tolga": {
+        "Bernhard": -0.22538293216630237,
+        "Guang": NaN,
+        "Justin": 0.0698073172299969,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.031141868512111093
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.26114582786325624,
+        "Justin": -0.1530735235034154,
+        "Luping": 0.1615393895524185,
+        "Tolga": 0.031141868512111093,
+        "Yixuan": NaN
+      }
     }
   },
   "turing": {

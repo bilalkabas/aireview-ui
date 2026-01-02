@@ -585,53 +585,105 @@
     }
   },
   "agreement": {
-    "Bernhard": {
-      "Bernhard": NaN,
-      "Guang": 0.0386124627217076,
-      "Justin": NaN,
-      "Luping": -0.08097124860306826,
-      "Tolga": -0.0030983733539891034,
-      "Yixuan": NaN
+    "cohen_kappa": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": 0.0386124627217076,
+        "Justin": NaN,
+        "Luping": -0.08097124860306826,
+        "Tolga": -0.0030983733539891034,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": 0.0386124627217076,
+        "Guang": NaN,
+        "Justin": 0.06249999999999989,
+        "Luping": 0.008333333333333304,
+        "Tolga": NaN,
+        "Yixuan": 0.21867072552004052
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": 0.06249999999999989,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": 0.046394207868914905,
+        "Yixuan": -0.14225941422594146
+      },
+      "Luping": {
+        "Bernhard": -0.08097124860306826,
+        "Guang": 0.008333333333333304,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.16174439448705524
+      },
+      "Tolga": {
+        "Bernhard": -0.0030983733539891034,
+        "Guang": NaN,
+        "Justin": 0.046394207868914905,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.0051679586563306845
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.21867072552004052,
+        "Justin": -0.14225941422594146,
+        "Luping": 0.16174439448705524,
+        "Tolga": 0.0051679586563306845,
+        "Yixuan": NaN
+      }
     },
-    "Guang": {
-      "Bernhard": 0.0386124627217076,
-      "Guang": NaN,
-      "Justin": 0.06249999999999989,
-      "Luping": 0.008333333333333304,
-      "Tolga": NaN,
-      "Yixuan": 0.21867072552004052
-    },
-    "Justin": {
-      "Bernhard": NaN,
-      "Guang": 0.06249999999999989,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": 0.046394207868914905,
-      "Yixuan": -0.14225941422594146
-    },
-    "Luping": {
-      "Bernhard": -0.08097124860306826,
-      "Guang": 0.008333333333333304,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.16174439448705524
-    },
-    "Tolga": {
-      "Bernhard": -0.0030983733539891034,
-      "Guang": NaN,
-      "Justin": 0.046394207868914905,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.0051679586563306845
-    },
-    "Yixuan": {
-      "Bernhard": NaN,
-      "Guang": 0.21867072552004052,
-      "Justin": -0.14225941422594146,
-      "Luping": 0.16174439448705524,
-      "Tolga": 0.0051679586563306845,
-      "Yixuan": NaN
+    "gwet_ac2": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": -0.001029630477061626,
+        "Justin": NaN,
+        "Luping": -0.10620159068461754,
+        "Tolga": -0.038908945046128976,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": -0.001029630477061626,
+        "Guang": NaN,
+        "Justin": 0.049773755656107824,
+        "Luping": -0.017964071856287643,
+        "Tolga": NaN,
+        "Yixuan": 0.21608551794349648
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": 0.049773755656107824,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": 0.008407731646009097,
+        "Yixuan": -0.16816431322208003
+      },
+      "Luping": {
+        "Bernhard": -0.10620159068461754,
+        "Guang": -0.017964071856287643,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.15123112400505864
+      },
+      "Tolga": {
+        "Bernhard": -0.038908945046128976,
+        "Guang": NaN,
+        "Justin": 0.008407731646009097,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": -0.16226415094339564
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.21608551794349648,
+        "Justin": -0.16816431322208003,
+        "Luping": 0.15123112400505864,
+        "Tolga": -0.16226415094339564,
+        "Yixuan": NaN
+      }
     }
   },
   "turing": {

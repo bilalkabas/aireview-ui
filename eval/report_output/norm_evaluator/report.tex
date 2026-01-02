@@ -232,7 +232,9 @@ Overall & 0.528 & 0.661 & 0.600 & 0.629 \\
 \end{figure}
 
 \section{Inter-Evaluator Agreement}
-Cohen's Kappa agreement between evaluators on review scores (discretized).
+Cohen's Kappa and Gwet's AC2 agreement between evaluators on review scores (discretized).
+
+\subsection{Cohen's Kappa}
 
 \begin{table}[H]
 \centering
@@ -248,6 +250,28 @@ Justin & - & -0.08 & - & - & 0.13 & -0.06 \\
 Luping & -0.01 & -0.01 & - & - & - & 0.24 \\
 Tolga & 0.05 & - & 0.13 & - & - & 0.11 \\
 Yixuan & - & 0.26 & -0.06 & 0.24 & 0.11 & - \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\subsection{Gwet's AC2}
+Gwet's AC2 is often more robust to marginal imbalance and ordinal data.
+
+\begin{table}[H]
+\centering
+\caption{Pairwise Gwet's AC2 Agreement}
+\label{tab:ac2}
+\begin{tabular}{lllllll}
+\toprule
+Evaluator & Bernhard & Guang & Justin & Luping & Tolga & Yixuan \\
+\midrule
+Bernhard & - & -0.16 & - & -0.37 & -0.05 & - \\
+Guang & -0.16 & - & -0.09 & -0.30 & - & 0.26 \\
+Justin & - & -0.09 & - & - & 0.07 & -0.15 \\
+Luping & -0.37 & -0.30 & - & - & - & 0.18 \\
+Tolga & -0.05 & - & 0.07 & - & - & 0.03 \\
+Yixuan & - & 0.26 & -0.15 & 0.18 & 0.03 & - \\
 \bottomrule
 \end{tabular}
 

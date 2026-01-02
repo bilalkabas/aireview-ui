@@ -585,53 +585,105 @@
     }
   },
   "agreement": {
-    "Bernhard": {
-      "Bernhard": NaN,
-      "Guang": 0.029164685370106302,
-      "Justin": NaN,
-      "Luping": -0.006584424430485125,
-      "Tolga": 0.052890528905289,
-      "Yixuan": NaN
+    "cohen_kappa": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": 0.029164685370106302,
+        "Justin": NaN,
+        "Luping": -0.006584424430485125,
+        "Tolga": 0.052890528905289,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": 0.029164685370106302,
+        "Guang": NaN,
+        "Justin": -0.08098833218943025,
+        "Luping": -0.006116207951070374,
+        "Tolga": NaN,
+        "Yixuan": 0.2649670880785707
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": -0.08098833218943025,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": 0.1299641160315137,
+        "Yixuan": -0.06217616580310881
+      },
+      "Luping": {
+        "Bernhard": -0.006584424430485125,
+        "Guang": -0.006116207951070374,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.24036346799398078
+      },
+      "Tolga": {
+        "Bernhard": 0.052890528905289,
+        "Guang": NaN,
+        "Justin": 0.1299641160315137,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.10828025477707004
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.2649670880785707,
+        "Justin": -0.06217616580310881,
+        "Luping": 0.24036346799398078,
+        "Tolga": 0.10828025477707004,
+        "Yixuan": NaN
+      }
     },
-    "Guang": {
-      "Bernhard": 0.029164685370106302,
-      "Guang": NaN,
-      "Justin": -0.08098833218943025,
-      "Luping": -0.006116207951070374,
-      "Tolga": NaN,
-      "Yixuan": 0.2649670880785707
-    },
-    "Justin": {
-      "Bernhard": NaN,
-      "Guang": -0.08098833218943025,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": 0.1299641160315137,
-      "Yixuan": -0.06217616580310881
-    },
-    "Luping": {
-      "Bernhard": -0.006584424430485125,
-      "Guang": -0.006116207951070374,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.24036346799398078
-    },
-    "Tolga": {
-      "Bernhard": 0.052890528905289,
-      "Guang": NaN,
-      "Justin": 0.1299641160315137,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.10828025477707004
-    },
-    "Yixuan": {
-      "Bernhard": NaN,
-      "Guang": 0.2649670880785707,
-      "Justin": -0.06217616580310881,
-      "Luping": 0.24036346799398078,
-      "Tolga": 0.10828025477707004,
-      "Yixuan": NaN
+    "gwet_ac2": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": -0.1618454034279517,
+        "Justin": NaN,
+        "Luping": -0.3720387955797373,
+        "Tolga": -0.04976141785957722,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": -0.1618454034279517,
+        "Guang": NaN,
+        "Justin": -0.09337035751475202,
+        "Luping": -0.29783037475345153,
+        "Tolga": NaN,
+        "Yixuan": 0.26114582786325624
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": -0.09337035751475202,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": 0.0698073172299969,
+        "Yixuan": -0.1530735235034154
+      },
+      "Luping": {
+        "Bernhard": -0.3720387955797373,
+        "Guang": -0.29783037475345153,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.17714178238926623
+      },
+      "Tolga": {
+        "Bernhard": -0.04976141785957722,
+        "Guang": NaN,
+        "Justin": 0.0698073172299969,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.031141868512111093
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.26114582786325624,
+        "Justin": -0.1530735235034154,
+        "Luping": 0.17714178238926623,
+        "Tolga": 0.031141868512111093,
+        "Yixuan": NaN
+      }
     }
   },
   "turing": {

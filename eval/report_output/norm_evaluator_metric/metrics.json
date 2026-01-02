@@ -585,53 +585,105 @@
     }
   },
   "agreement": {
-    "Bernhard": {
-      "Bernhard": NaN,
-      "Guang": 0.003261409023231465,
-      "Justin": NaN,
-      "Luping": -0.06887713366417625,
-      "Tolga": 0.05760801502817792,
-      "Yixuan": NaN
+    "cohen_kappa": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": 0.003261409023231465,
+        "Justin": NaN,
+        "Luping": -0.06887713366417625,
+        "Tolga": 0.05760801502817792,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": 0.003261409023231465,
+        "Guang": NaN,
+        "Justin": -0.1609756097560977,
+        "Luping": -0.04326923076923084,
+        "Tolga": NaN,
+        "Yixuan": 0.2148093841642228
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": -0.1609756097560977,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": 0.03858875413450935,
+        "Yixuan": -0.06766500277315579
+      },
+      "Luping": {
+        "Bernhard": -0.06887713366417625,
+        "Guang": -0.04326923076923084,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.22454296466187174
+      },
+      "Tolga": {
+        "Bernhard": 0.05760801502817792,
+        "Guang": NaN,
+        "Justin": 0.03858875413450935,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.06945198046663048
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.2148093841642228,
+        "Justin": -0.06766500277315579,
+        "Luping": 0.22454296466187174,
+        "Tolga": 0.06945198046663048,
+        "Yixuan": NaN
+      }
     },
-    "Guang": {
-      "Bernhard": 0.003261409023231465,
-      "Guang": NaN,
-      "Justin": -0.1609756097560977,
-      "Luping": -0.04326923076923084,
-      "Tolga": NaN,
-      "Yixuan": 0.2148093841642228
-    },
-    "Justin": {
-      "Bernhard": NaN,
-      "Guang": -0.1609756097560977,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": 0.03858875413450935,
-      "Yixuan": -0.06766500277315579
-    },
-    "Luping": {
-      "Bernhard": -0.06887713366417625,
-      "Guang": -0.04326923076923084,
-      "Justin": NaN,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.22454296466187174
-    },
-    "Tolga": {
-      "Bernhard": 0.05760801502817792,
-      "Guang": NaN,
-      "Justin": 0.03858875413450935,
-      "Luping": NaN,
-      "Tolga": NaN,
-      "Yixuan": 0.06945198046663048
-    },
-    "Yixuan": {
-      "Bernhard": NaN,
-      "Guang": 0.2148093841642228,
-      "Justin": -0.06766500277315579,
-      "Luping": 0.22454296466187174,
-      "Tolga": 0.06945198046663048,
-      "Yixuan": NaN
+    "gwet_ac2": {
+      "Bernhard": {
+        "Bernhard": NaN,
+        "Guang": -0.07355131027987459,
+        "Justin": NaN,
+        "Luping": -0.23282070635594523,
+        "Tolga": 0.010194015126603034,
+        "Yixuan": NaN
+      },
+      "Guang": {
+        "Bernhard": -0.07355131027987459,
+        "Guang": NaN,
+        "Justin": -0.16895874263261282,
+        "Luping": -0.21026213050752904,
+        "Tolga": NaN,
+        "Yixuan": 0.21070086225956214
+      },
+      "Justin": {
+        "Bernhard": NaN,
+        "Guang": -0.16895874263261282,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": -0.03992571959145742,
+        "Yixuan": -0.1930585683297177
+      },
+      "Luping": {
+        "Bernhard": -0.23282070635594523,
+        "Guang": -0.21026213050752904,
+        "Justin": NaN,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": 0.20593298598839418
+      },
+      "Tolga": {
+        "Bernhard": 0.010194015126603034,
+        "Guang": NaN,
+        "Justin": -0.03992571959145742,
+        "Luping": NaN,
+        "Tolga": NaN,
+        "Yixuan": -0.049892868074686014
+      },
+      "Yixuan": {
+        "Bernhard": NaN,
+        "Guang": 0.21070086225956214,
+        "Justin": -0.1930585683297177,
+        "Luping": 0.20593298598839418,
+        "Tolga": -0.049892868074686014,
+        "Yixuan": NaN
+      }
     }
   },
   "turing": {

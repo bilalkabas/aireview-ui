@@ -106,7 +106,9 @@ Evaluators were asked to guess if the review was written by AI or Human. We pres
 ![Confusion Matrices per Evaluator](plots/turing_cm_evaluators_combined.png)
 
 ## Inter-Evaluator Agreement
-Cohen's Kappa agreement between evaluators on review scores (discretized).
+Cohen's Kappa and Gwet's AC2 agreement between evaluators on review scores (discretized).
+
+### Cohen's Kappa
 | Evaluator   | Bernhard   | Guang   | Justin   | Luping   | Tolga   | Yixuan   |
 |:------------|:-----------|:--------|:---------|:---------|:--------|:---------|
 | Bernhard    | -          | 0.04    | -        | -0.08    | -0.00   | -        |
@@ -114,14 +116,18 @@ Cohen's Kappa agreement between evaluators on review scores (discretized).
 | Justin      | -          | 0.06    | -        | -        | 0.05    | -0.14    |
 | Luping      | -0.08      | 0.01    | -        | -        | -       | 0.16     |
 | Tolga       | -0.00      | -       | 0.05     | -        | -       | 0.01     |
-| Yixuan      | -          | 0.22    | -0.14    | 0.16     | 0.01    | -        || Evaluator   | Bernhard   | Guang   | Justin   | Luping   | Tolga   | Yixuan   |
-|:------------|:-----------|:--------|:---------|:---------|:--------|:---------|
-| Bernhard    | -          | 0.04    | -        | -0.08    | -0.00   | -        |
-| Guang       | 0.04       | -       | 0.06     | 0.01     | -       | 0.22     |
-| Justin      | -          | 0.06    | -        | -        | 0.05    | -0.14    |
-| Luping      | -0.08      | 0.01    | -        | -        | -       | 0.16     |
-| Tolga       | -0.00      | -       | 0.05     | -        | -       | 0.01     |
 | Yixuan      | -          | 0.22    | -0.14    | 0.16     | 0.01    | -        |
+
+### Gwet's AC2
+Gwet's AC2 is often more robust to marginal imbalance and ordinal data.
+| Evaluator   | Bernhard   | Guang   | Justin   | Luping   | Tolga   | Yixuan   |
+|:------------|:-----------|:--------|:---------|:---------|:--------|:---------|
+| Bernhard    | -          | -0.00   | -        | -0.11    | -0.04   | -        |
+| Guang       | -0.00      | -       | 0.05     | -0.02    | -       | 0.22     |
+| Justin      | -          | 0.05    | -        | -        | 0.01    | -0.17    |
+| Luping      | -0.11      | -0.02   | -        | -        | -       | 0.15     |
+| Tolga       | -0.04      | -       | 0.01     | -        | -       | -0.16    |
+| Yixuan      | -          | 0.22    | -0.17    | 0.15     | -0.16   | -        |
 
 ## Breakdown wrt Accepted versus Rejected Papers
 Analysis of review characteristics based on the final decision (Accept vs Reject).
@@ -181,3 +187,6 @@ Interpretation: |delta| < 0.147 (Negligible), < 0.33 (Small), < 0.474 (Medium), 
 **Computation**:
 kappa = (p_o - p_e) / (1 - p_e)
 where p_o is the relative observed agreement, and p_e is the hypothetical probability of chance agreement based on marginal frequencies.
+
+### Gwet's AC2
+**Intuition**: An alternative to Cohen's Kappa specific for ordinal data and robust to marginal imbalance (paradoxes of Kappa). It estimates chance agreement based on average marginal probabilities.

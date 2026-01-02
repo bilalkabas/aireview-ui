@@ -10,11 +10,11 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from utils import load_data, METRICS
-    from metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from metrics import compute_metric_stats, compute_statistical_tests, compute_agreement, compute_turing_tests, compute_decision_stats, NumpyEncoder
     from create_plots import generate_plots, plot_decision_analysis
 except ImportError:
     from .utils import load_data, METRICS
-    from .metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from .metrics import compute_metric_stats, compute_statistical_tests, compute_agreement, compute_turing_tests, compute_decision_stats, NumpyEncoder
     from .create_plots import generate_plots, plot_decision_analysis
 
 def format_p_value(val):
@@ -39,7 +39,7 @@ def create_latex_table(df, caption, label):
 \\end{{table}}
 """
 
-def generate_latex_content(stats, sig_tests, kappa_matrix, turing_tests, models, decision_stats):
+def generate_latex_content(stats, sig_tests, agreement, turing_tests, models, decision_stats):
     latex = r"""\documentclass{article}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -197,17 +197,32 @@ Evaluators were asked to guess if the review was written by AI or Human. We pres
 
     latex += r"""
 \section{Inter-Evaluator Agreement}
-Cohen's Kappa agreement between evaluators on review scores (discretized).
+Cohen's Kappa and Gwet's AC2 agreement between evaluators on review scores (discretized).
+
+\subsection{Cohen's Kappa}
 """
     # Create Kappa Table (Matrix)
-    df_kappa = pd.DataFrame.from_dict(kappa_matrix)
-    # Format NaN
-    df_kappa = df_kappa.applymap(lambda x: f"{x:.2f}" if not pd.isna(x) else "-")
-    # Reset index to include evaluator names
-    df_kappa.reset_index(inplace=True)
-    df_kappa.rename(columns={'index': 'Evaluator'}, inplace=True)
+    if 'cohen_kappa' in agreement:
+        df_kappa = pd.DataFrame.from_dict(agreement['cohen_kappa'])
+        # Format NaN
+        df_kappa = df_kappa.map(lambda x: f"{x:.2f}" if not pd.isna(x) else "-")
+        # Reset index to include evaluator names
+        df_kappa.reset_index(inplace=True)
+        df_kappa.rename(columns={'index': 'Evaluator'}, inplace=True)
+        latex += create_latex_table(df_kappa, "Pairwise Cohen's Kappa Agreement", "tab:kappa")
     
-    latex += create_latex_table(df_kappa, "Pairwise Cohen's Kappa Agreement", "tab:kappa")
+    latex += r"""
+\subsection{Gwet's AC2}
+Gwet's AC2 is often more robust to marginal imbalance and ordinal data.
+"""
+    if 'gwet_ac2' in agreement:
+        df_ac2 = pd.DataFrame.from_dict(agreement['gwet_ac2'])
+        # Format NaN
+        df_ac2 = df_ac2.map(lambda x: f"{x:.2f}" if not pd.isna(x) else "-")
+        # Reset index
+        df_ac2.reset_index(inplace=True)
+        df_ac2.rename(columns={'index': 'Evaluator'}, inplace=True)
+        latex += create_latex_table(df_ac2, "Pairwise Gwet's AC2 Agreement", "tab:ac2")
 
     latex += r"""
 \section{Breakdown wrt Accepted versus Rejected Papers}
@@ -323,7 +338,7 @@ def main():
     stats = compute_metric_stats(data)
     sig_tests = compute_statistical_tests(data)
     turing_tests = compute_turing_tests(data)
-    kappa_matrix = compute_kappa(data)
+    agreement_res = compute_agreement(data) # Changed from kappa_matrix
     decision_stats = compute_decision_stats(data) # Compute Accepted/Rejected stats
     
     print("Generating Plots...")
@@ -334,7 +349,7 @@ def main():
     final_output = {
         'statistics': stats,
         'significance': sig_tests,
-        'agreement': kappa_matrix,
+        'agreement': agreement_res,
         'turing': turing_tests
     }
     with open(output_path / 'metrics.json', 'w') as f:
@@ -342,7 +357,7 @@ def main():
     print(f"Metrics saved to {output_path / 'metrics.json'}")
     
     print("Generating Report...")
-    latex_content = generate_latex_content(stats, sig_tests, kappa_matrix, turing_tests, data['models'], decision_stats)
+    latex_content = generate_latex_content(stats, sig_tests, agreement_res, turing_tests, data['models'], decision_stats)
     
     tex_file = output_path / 'report.tex'
     with open(tex_file, 'w') as f:

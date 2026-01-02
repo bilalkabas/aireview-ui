@@ -312,9 +312,58 @@ def compute_statistical_tests(data):
         'per_model': results_model
     }
 
-def compute_kappa(data):
+def gwet_ac2(rater1, rater2, min_rating=1, max_rating=5):
     """
-    4. Evaluator agreement statistics (Cohen's Kappa).
+    Computes weighted agreement (proxy for Gwet's AC2 / Weighted Scott's Pi)
+    for ordinal data with linear weights.
+    """
+    r1 = np.array(rater1, dtype=int)
+    r2 = np.array(rater2, dtype=int)
+    n = len(r1)
+    if n == 0: return np.nan
+    
+    # Define categories
+    cats = np.arange(min_rating, max_rating + 1)
+    q = len(cats)
+    
+    # Linear Weights: 1 - |i-j|/(q-1)
+    w = np.zeros((q, q))
+    for i in range(q):
+        for j in range(q):
+            w[i, j] = 1.0 - abs(cats[i] - cats[j]) / (q - 1)
+            
+    # Observed Agreement (Weighted)
+    pa_sum = 0.0
+    for k in range(n):
+        val1 = r1[k]; val2 = r2[k]
+        # Find index in cats
+        # Assumes values are within min_rating..max_rating
+        # Clamp to be safe
+        idx1 = max(0, min(q-1, int(val1 - min_rating)))
+        idx2 = max(0, min(q-1, int(val2 - min_rating)))
+        pa_sum += w[idx1, idx2]
+    pa = pa_sum / n
+    
+    # Chance Agreement (Using Average Marginals - Scott's Pi approach)
+    # This handles marginal imbalance better than Cohen's
+    pi = np.zeros(q)
+    for i, c in enumerate(cats):
+        count = np.sum(r1 == c) + np.sum(r2 == c)
+        pi[i] = count / (2 * n)
+        
+    pe = 0.0
+    for i in range(q):
+        for j in range(q):
+            pe += w[i, j] * pi[i] * pi[j]
+            
+    if (1 - pe) == 0:
+        return 1.0
+        
+    return (pa - pe) / (1 - pe)
+
+def compute_agreement(data):
+    """
+    4. Evaluator agreement statistics (Cohen's Kappa & Gwet's AC2).
     Pairwise evaluators, common (Paper, Reviewer Identity).
     """
     # Build map: (Paper, Reviewer_Type, Model) -> Evaluator -> {metric: score}
@@ -341,6 +390,7 @@ def compute_kappa(data):
 
     evaluators = data['evaluators']
     kappa_matrix = pd.DataFrame(index=evaluators, columns=evaluators, dtype=float)
+    ac2_matrix = pd.DataFrame(index=evaluators, columns=evaluators, dtype=float)
     
     # For pair (E1, E2)
     for i in range(len(evaluators)):
@@ -356,29 +406,33 @@ def compute_kappa(data):
                     list1.append(ev_map[e1])
                     list2.append(ev_map[e2])
             
-            # Compute Kappa if enough overlap
-            # Since scores are continuous (normalized) or ordinal (1-5), Cohen's Kappa needs discrete classes.
-            # If normalized, they are floats. We should round? Or use Intraclass Correlation?
-            # Prompt says "Kappa". Standard is Cohen's for categorical. Weighted for ordinal.
-            # If normalization means float 3.5, Kappa is undefined.
-            # I will assume we convert to nearest integer 1-5 for Kappa calculation.
-            
             if len(list1) > 5:
                 # Discretize
                 l1_int = np.round(list1).astype(int)
                 l2_int = np.round(list2).astype(int)
                 
                 # Check range
-                # scikit-learn cohen_kappa_score
                 from sklearn.metrics import cohen_kappa_score
                 k = cohen_kappa_score(l1_int, l2_int, weights='linear')
+                
+                # AC2
+                ac2 = gwet_ac2(l1_int, l2_int, min_rating=1, max_rating=5)
+                
                 kappa_matrix.at[e1, e2] = k
                 kappa_matrix.at[e2, e1] = k
+                
+                ac2_matrix.at[e1, e2] = ac2
+                ac2_matrix.at[e2, e1] = ac2
             else:
                 kappa_matrix.at[e1, e2] = np.nan
                 kappa_matrix.at[e2, e1] = np.nan
+                ac2_matrix.at[e1, e2] = np.nan
+                ac2_matrix.at[e2, e1] = np.nan
 
-    return kappa_matrix.to_dict()
+    return {
+        'cohen_kappa': kappa_matrix.to_dict(),
+        'gwet_ac2': ac2_matrix.to_dict()
+    }
 
 def calculate_cm_stats(entries):
     """
@@ -445,8 +499,8 @@ def run_all_metrics(data_dir, normalization='none', output_file='metrics.json'):
     print("Computing Significance Tests...")
     sig_res = compute_statistical_tests(data)
     
-    print("Computing Kappa...")
-    kappa_res = compute_kappa(data)
+    print("Computing Agreement (Kappa & Gwet's AC2)...")
+    agreement_res = compute_agreement(data)
     
     # Turing (skip if no data)
     turing_res = compute_turing_tests(data)
@@ -454,7 +508,7 @@ def run_all_metrics(data_dir, normalization='none', output_file='metrics.json'):
     final_output = {
         'statistics': stats_res,
         'significance': sig_res,
-        'agreement': kappa_res,
+        'agreement': agreement_res,
         'turing': turing_res
     }
     

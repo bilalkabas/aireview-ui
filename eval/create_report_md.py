@@ -10,11 +10,11 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from utils import load_data, METRICS
-    from metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from metrics import compute_metric_stats, compute_statistical_tests, compute_agreement, compute_turing_tests, compute_decision_stats, NumpyEncoder
     from create_plots import generate_plots, plot_decision_analysis
 except ImportError:
     from .utils import load_data, METRICS
-    from .metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from .metrics import compute_metric_stats, compute_statistical_tests, compute_agreement, compute_turing_tests, compute_decision_stats, NumpyEncoder
     from .create_plots import generate_plots, plot_decision_analysis
 
 def format_p_value(val):
@@ -29,7 +29,7 @@ def format_delta(val):
     if pd.isna(val): return "-"
     return f"{val:+.3f}"
 
-def generate_markdown_content(stats, sig_tests, kappa_matrix, turing_tests, models, decision_stats):
+def generate_markdown_content(stats, sig_tests, agreement, turing_tests, models, decision_stats):
     md = """# AI Reviewer Evaluation Report
 **Date:** Automated Analysis
 
@@ -137,19 +137,34 @@ Evaluators were asked to guess if the review was written by AI or Human. We pres
         md += "\nNo Per-Evaluator data found.\n"
 
     md += """## Inter-Evaluator Agreement
-Cohen's Kappa agreement between evaluators on review scores (discretized).
+Cohen's Kappa and Gwet's AC2 agreement between evaluators on review scores (discretized).
+
+### Cohen's Kappa
 """
     # Create Kappa Table (Matrix)
-    df_kappa = pd.DataFrame.from_dict(kappa_matrix)
-    # Format NaN
-    df_kappa = df_kappa.map(lambda x: f"{x:.2f}" if not pd.isna(x) else "-")
-    # Reset index to include evaluator names
-    df_kappa.reset_index(inplace=True)
-    df_kappa.rename(columns={'index': 'Evaluator'}, inplace=True)
-    
-    md += df_kappa.to_markdown(index=False)
-    md += df_kappa.to_markdown(index=False)
-    md += "\n\n"
+    if 'cohen_kappa' in agreement:
+        df_kappa = pd.DataFrame.from_dict(agreement['cohen_kappa'])
+        # Format NaN
+        df_kappa = df_kappa.map(lambda x: f"{x:.2f}" if not pd.isna(x) else "-")
+        # Reset index to include evaluator names
+        df_kappa.reset_index(inplace=True)
+        df_kappa.rename(columns={'index': 'Evaluator'}, inplace=True)
+        
+        md += df_kappa.to_markdown(index=False)
+        md += "\n\n"
+
+    md += """### Gwet's AC2
+Gwet's AC2 is often more robust to marginal imbalance and ordinal data.
+"""
+    if 'gwet_ac2' in agreement:
+        df_ac2 = pd.DataFrame.from_dict(agreement['gwet_ac2'])
+        # Format NaN
+        df_ac2 = df_ac2.map(lambda x: f"{x:.2f}" if not pd.isna(x) else "-")
+        # Reset index
+        df_ac2.reset_index(inplace=True)
+        df_ac2.rename(columns={'index': 'Evaluator'}, inplace=True)
+        md += df_ac2.to_markdown(index=False)
+        md += "\n\n"
 
     md += """## Breakdown wrt Accepted versus Rejected Papers
 Analysis of review characteristics based on the final decision (Accept vs Reject).
@@ -211,6 +226,9 @@ Interpretation: |delta| < 0.147 (Negligible), < 0.33 (Small), < 0.474 (Medium), 
 **Computation**:
 kappa = (p_o - p_e) / (1 - p_e)
 where p_o is the relative observed agreement, and p_e is the hypothetical probability of chance agreement based on marginal frequencies.
+
+### Gwet's AC2
+**Intuition**: An alternative to Cohen's Kappa specific for ordinal data and robust to marginal imbalance (paradoxes of Kappa). It estimates chance agreement based on average marginal probabilities.
 """
     return md
 
@@ -238,7 +256,7 @@ def main():
     stats = compute_metric_stats(data)
     sig_tests = compute_statistical_tests(data)
     turing_tests = compute_turing_tests(data)
-    kappa_matrix = compute_kappa(data)
+    agreement_res = compute_agreement(data)
     
     print("Generating Plots...")
     generate_plots(data, output_path / 'plots')
@@ -251,7 +269,7 @@ def main():
     final_output = {
         'statistics': stats,
         'significance': sig_tests,
-        'agreement': kappa_matrix,
+        'agreement': agreement_res,
         'turing': turing_tests
     }
     with open(output_path / 'metrics.json', 'w') as f:
@@ -259,7 +277,7 @@ def main():
     print(f"Metrics saved to {output_path / 'metrics.json'}")
     
     print("Generating Markdown Report...")
-    md_content = generate_markdown_content(stats, sig_tests, kappa_matrix, turing_tests, data['models'], decision_stats)
+    md_content = generate_markdown_content(stats, sig_tests, agreement_res, turing_tests, data['models'], decision_stats)
     
     md_file = output_path / 'report.md'
     with open(md_file, 'w') as f:
