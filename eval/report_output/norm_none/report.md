@@ -114,8 +114,37 @@ Cohen's Kappa agreement between evaluators on review scores (discretized).
 | Justin      | -          | -0.08   | -        | -        | 0.13    | -0.06    |
 | Luping      | 0.00       | -0.01   | -        | -        | -       | 0.23     |
 | Tolga       | 0.03       | -       | 0.13     | -        | -       | 0.11     |
+| Yixuan      | -          | 0.26    | -0.06    | 0.23     | 0.11    | -        || Evaluator   | Bernhard   | Guang   | Justin   | Luping   | Tolga   | Yixuan   |
+|:------------|:-----------|:--------|:---------|:---------|:--------|:---------|
+| Bernhard    | -          | -0.00   | -        | 0.00     | 0.03    | -        |
+| Guang       | -0.00      | -       | -0.08    | -0.01    | -       | 0.26     |
+| Justin      | -          | -0.08   | -        | -        | 0.13    | -0.06    |
+| Luping      | 0.00       | -0.01   | -        | -        | -       | 0.23     |
+| Tolga       | 0.03       | -       | 0.13     | -        | -       | 0.11     |
 | Yixuan      | -          | 0.26    | -0.06    | 0.23     | 0.11    | -        |
 
+## Breakdown wrt Accepted versus Rejected Papers
+Analysis of review characteristics based on the final decision (Accept vs Reject).
+
+### Scores and Differences
+
+**Human Scores (Accept/Reject)**  
+![Human Scores](plots/decision_human_scores.png)
+
+**AI Scores (Accept/Reject)**  
+![AI Scores](plots/decision_ai_scores.png)
+
+
+
+### Turing Test Confusion Matrices
+![Turing Test Confusion Matrices (Accept/Reject)](plots/decision_turing_combined.png)
+
+### Additional Metrics
+**AI Detection Metrics**  
+![AI Detection Metrics](plots/decision_detection_metrics.png)
+
+**Dataset Distribution**  
+![Dataset Distribution](plots/decision_distribution.png)
 # Appendix: Guide to Interpretations
 
 ## Interpreting Box Plots

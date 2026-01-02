@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from collections import defaultdict
-from .utils import METRICS, get_stats
+from utils import METRICS, get_stats
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -84,6 +85,118 @@ def compute_metric_stats(data):
         'per_metric_overall': per_metric_overall,
         'per_metric_model': per_metric_model
     }
+
+def compute_decision_stats(data):
+    """
+    Computes statistics split by Accept/Reject decision.
+    Returns dictionary with score means, confusino matrices, and counts.
+    """
+    scores = pd.DataFrame(data['scores'])
+    confusion_data = pd.DataFrame(data['confusion_data'])
+    
+    if scores.empty:
+        return {}
+
+    def simplify_decision(d):
+        d_str = str(d).lower()
+        if 'accept' in d_str: return 'Accept'
+        if 'reject' in d_str: return 'Reject'
+        return 'Other'
+
+    scores['decision_simple'] = scores['decision'].apply(simplify_decision)
+    confusion_data['decision_simple'] = confusion_data['decision'].apply(simplify_decision)
+    
+    # Filter for Accept/Reject only
+    scores = scores[scores['decision_simple'].isin(['Accept', 'Reject'])]
+    confusion_data = confusion_data[confusion_data['decision_simple'].isin(['Accept', 'Reject'])]
+    
+    stats_out = {'score_means': {}, 'score_stds': {}, 'turing': {}, 'counts': {}}
+    
+    # 1. Score Means: {Metric: {Human: {Accept: x, Reject: y}, AI: {...}}}
+    # Organize as DataFrame or Dict for plotting
+    # We want: Human Accept, Human Reject, AI Accept, AI Reject per Metric.
+    
+    # Group: Metric -> Is_Human -> Decision -> Mean Score
+    grouped = scores.groupby(['metric', 'is_human', 'decision_simple'])['score'].mean()
+    grouped_std = scores.groupby(['metric', 'is_human', 'decision_simple'])['score'].std()
+    
+    # Convert to nested dict for easy access
+    # stats_out['score_means'][metric][is_human][decision]
+    stats_out['score_stds'] = {}
+    for m in METRICS:
+        stats_out['score_means'][m] = {}
+        stats_out['score_stds'][m] = {}
+        for is_human in [True, False]:
+            h_key = 'Human' if is_human else 'AI'
+            stats_out['score_means'][m][h_key] = {}
+            stats_out['score_stds'][m][h_key] = {}
+            for dec in ['Accept', 'Reject']:
+                try:
+                    val = grouped.loc[(m, is_human, dec)]
+                    val_std = grouped_std.loc[(m, is_human, dec)]
+                except KeyError:
+                    val = 0
+                    val_std = 0
+                stats_out['score_means'][m][h_key][dec] = val
+                stats_out['score_stds'][m][h_key][dec] = val_std
+
+    # 2. Turing Test Stats (Confusion Matrix etc)
+    for dec in ['Accept', 'Reject']:
+        subset = confusion_data[confusion_data['decision_simple'] == dec]
+        if subset.empty:
+            stats_out['turing'][dec] = {
+                'cm': [[0,0],[0,0]], 'acc': 0, 'prec': 0, 'rec': 0, 'f1': 0
+            }
+            continue
+            
+        # 0=AI, 1=Human
+        y_true = (subset['actual'] == 'human').astype(int)
+        y_pred = (subset['predicted'] == 'human').astype(int)
+        
+        cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
+        acc = accuracy_score(y_true, y_pred)
+        prec = precision_score(y_true, y_pred, zero_division=0)
+        rec = recall_score(y_true, y_pred, zero_division=0)
+        f1 = f1_score(y_true, y_pred, zero_division=0)
+        
+        stats_out['turing'][dec] = {
+            'cm': cm.tolist(), 'acc': acc, 'prec': prec, 'rec': rec, 'f1': f1
+        }
+        
+    # 3. Counts (Papers, Reviews etc)
+    # We can estimate counts from 'scores' (one entry per review per metric)
+    # But 'scores' has 5 entries per review.
+    # Better to use 'confusion_data' if available (one entry per review evaluated for source).
+    # OR use unique (paper_title, evaluator, reviewer) from scores.
+    
+    # Let's count unique papers
+    papers_acc = scores[scores['decision_simple']=='Accept']['paper_title'].nunique()
+    papers_rej = scores[scores['decision_simple']=='Reject']['paper_title'].nunique()
+    
+    # Total reviews (approx) = scores len / 5 metrics
+    revs_acc = len(scores[scores['decision_simple']=='Accept']) // 5
+    revs_rej = len(scores[scores['decision_simple']=='Reject']) // 5
+    
+    # Human Reviews
+    h_acc = len(scores[(scores['decision_simple']=='Accept') & (scores['is_human']==True)]) // 5
+    h_rej = len(scores[(scores['decision_simple']=='Reject') & (scores['is_human']==True)]) // 5
+    
+    # AI Reviews
+    a_acc = len(scores[(scores['decision_simple']=='Accept') & (scores['is_human']==False)]) // 5
+    a_rej = len(scores[(scores['decision_simple']=='Reject') & (scores['is_human']==False)]) // 5
+    
+    # Scored Reviews (Same as Reviews if all have metrics, assuming filtered by extract logic)
+    # In utils.load_data, we only add to scores if metric > 0.
+    
+    stats_out['counts'] = {
+        'Papers': {'Accept': papers_acc, 'Reject': papers_rej},
+        'Reviews': {'Accept': revs_acc, 'Reject': revs_rej},
+        'Human Reviews': {'Accept': h_acc, 'Reject': h_rej},
+        'AI Reviews': {'Accept': a_acc, 'Reject': a_rej},
+        'Scored Reviews': {'Accept': revs_acc, 'Reject': revs_rej} # Placeholder
+    }
+    
+    return stats_out
 
 def perform_tests(group1, group2, paired_g1=None, paired_g2=None):
     """

@@ -10,12 +10,12 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from utils import load_data, METRICS
-    from metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, NumpyEncoder
-    from create_plots import generate_plots
+    from metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from create_plots import generate_plots, plot_decision_analysis
 except ImportError:
     from .utils import load_data, METRICS
-    from .metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, NumpyEncoder
-    from .create_plots import generate_plots
+    from .metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from .create_plots import generate_plots, plot_decision_analysis
 
 def format_p_value(val):
     if pd.isna(val): return "-"
@@ -39,7 +39,7 @@ def create_latex_table(df, caption, label):
 \\end{{table}}
 """
 
-def generate_latex_content(stats, sig_tests, kappa_matrix, turing_tests, models):
+def generate_latex_content(stats, sig_tests, kappa_matrix, turing_tests, models, decision_stats):
     latex = r"""\documentclass{article}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -210,6 +210,47 @@ Cohen's Kappa agreement between evaluators on review scores (discretized).
     latex += create_latex_table(df_kappa, "Pairwise Cohen's Kappa Agreement", "tab:kappa")
 
     latex += r"""
+\section{Breakdown wrt Accepted versus Rejected Papers}
+Analysis of review characteristics based on the final decision (Accept vs Reject).
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/decision_human_scores.png}
+        \caption{Human Scores (Accept/Reject)}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/decision_ai_scores.png}
+        \caption{AI Scores (Accept/Reject)}
+    \end{minipage}
+\end{figure}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{plots/decision_turing_combined.png}
+    \caption{Turing Test Confusion Matrices (Accept/Reject)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/decision_detection_metrics.png}
+        \caption{AI Detection Metrics}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/decision_distribution.png}
+        \caption{Dataset Distribution}
+    \end{minipage}
+\end{figure}
+"""
+
+    latex += r"""
 \appendix
 \newpage
 \section{Appendix: Guide to Interpretations}
@@ -283,9 +324,11 @@ def main():
     sig_tests = compute_statistical_tests(data)
     turing_tests = compute_turing_tests(data)
     kappa_matrix = compute_kappa(data)
+    decision_stats = compute_decision_stats(data) # Compute Accepted/Rejected stats
     
     print("Generating Plots...")
     generate_plots(data, output_path / 'plots')
+    plot_decision_analysis(decision_stats, output_path / 'plots') # Generate new plots
     
     # Save Metrics JSON
     final_output = {
@@ -299,11 +342,11 @@ def main():
     print(f"Metrics saved to {output_path / 'metrics.json'}")
     
     print("Generating Report...")
-    tex_content = generate_latex_content(stats, sig_tests, kappa_matrix, turing_tests, data['models'])
+    latex_content = generate_latex_content(stats, sig_tests, kappa_matrix, turing_tests, data['models'], decision_stats)
     
     tex_file = output_path / 'report.tex'
     with open(tex_file, 'w') as f:
-        f.write(tex_content)
+        f.write(latex_content)
         
     print(f"Report generated at: {tex_file}")
 

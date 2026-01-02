@@ -114,6 +114,7 @@ def load_data(data_dir, normalization='none'):
             
         for paper in papers:
             title = paper.get('title', 'Unknown')
+            decision = paper.get('decision', 'Unknown')
             for review in paper.get('reviews', []):
                 reviewer_raw = review.get('reviewer', 'unknown')
                 is_human = (reviewer_raw == 'human')
@@ -138,7 +139,8 @@ def load_data(data_dir, normalization='none'):
                     confusion_data.append({
                         'evaluator': evaluator_name,
                         'actual': 'human' if is_human else 'ai',
-                        'predicted': source_guess
+                        'predicted': source_guess,
+                        'decision': decision
                     })
 
                 for m in METRICS:
@@ -166,7 +168,8 @@ def load_data(data_dir, normalization='none'):
                             'is_human': is_human,
                             'model': model_name,
                             'metric': m,
-                            'score': final_val
+                            'score': final_val,
+                            'decision': decision
                         })
                 
                 raw_reviews.append(review_obj)

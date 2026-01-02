@@ -10,12 +10,12 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from utils import load_data, METRICS
-    from metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, NumpyEncoder
-    from create_plots import generate_plots
+    from metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from create_plots import generate_plots, plot_decision_analysis
 except ImportError:
     from .utils import load_data, METRICS
-    from .metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, NumpyEncoder
-    from .create_plots import generate_plots
+    from .metrics import compute_metric_stats, compute_statistical_tests, compute_kappa, compute_turing_tests, compute_decision_stats, NumpyEncoder
+    from .create_plots import generate_plots, plot_decision_analysis
 
 def format_p_value(val):
     if pd.isna(val): return "-"
@@ -29,7 +29,7 @@ def format_delta(val):
     if pd.isna(val): return "-"
     return f"{val:+.3f}"
 
-def generate_markdown_content(stats, sig_tests, kappa_matrix, turing_tests, models):
+def generate_markdown_content(stats, sig_tests, kappa_matrix, turing_tests, models, decision_stats):
     md = """# AI Reviewer Evaluation Report
 **Date:** Automated Analysis
 
@@ -148,7 +148,32 @@ Cohen's Kappa agreement between evaluators on review scores (discretized).
     df_kappa.rename(columns={'index': 'Evaluator'}, inplace=True)
     
     md += df_kappa.to_markdown(index=False)
+    md += df_kappa.to_markdown(index=False)
     md += "\n\n"
+
+    md += """## Breakdown wrt Accepted versus Rejected Papers
+Analysis of review characteristics based on the final decision (Accept vs Reject).
+
+### Scores and Differences
+
+**Human Scores (Accept/Reject)**  
+![Human Scores](plots/decision_human_scores.png)
+
+**AI Scores (Accept/Reject)**  
+![AI Scores](plots/decision_ai_scores.png)
+
+
+
+### Turing Test Confusion Matrices
+![Turing Test Confusion Matrices (Accept/Reject)](plots/decision_turing_combined.png)
+
+### Additional Metrics
+**AI Detection Metrics**  
+![AI Detection Metrics](plots/decision_detection_metrics.png)
+
+**Dataset Distribution**  
+![Dataset Distribution](plots/decision_distribution.png)
+"""
 
     md += """# Appendix: Guide to Interpretations
 
@@ -218,6 +243,10 @@ def main():
     print("Generating Plots...")
     generate_plots(data, output_path / 'plots')
     
+    # Decision Stats
+    decision_stats = compute_decision_stats(data)
+    plot_decision_analysis(decision_stats, output_path / 'plots')
+    
     # Save Metrics JSON
     final_output = {
         'statistics': stats,
@@ -230,7 +259,7 @@ def main():
     print(f"Metrics saved to {output_path / 'metrics.json'}")
     
     print("Generating Markdown Report...")
-    md_content = generate_markdown_content(stats, sig_tests, kappa_matrix, turing_tests, data['models'])
+    md_content = generate_markdown_content(stats, sig_tests, kappa_matrix, turing_tests, data['models'], decision_stats)
     
     md_file = output_path / 'report.md'
     with open(md_file, 'w') as f:
