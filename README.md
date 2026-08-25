@@ -51,11 +51,12 @@ It opens `http://localhost:8091/ensemble.html` (port 8091 by default, so it can 
 and serves `reviews/evaluation-data-ensemble.json` — reviews only, no harmonized variants and no
 evaluator assignments.
 
-On first visit the console asks which **category** you will evaluate (CT imaging / MRI imaging /
-Image analysis). The choice is final: the paper list is limited to that category and links to papers
-outside it are refused. It is written into the data file itself — `evaluator_category` and
-`evaluator_category_at` on every paper — so it survives into processing and cannot be re-picked by
-clearing the browser.
+On first visit the console asks for the evaluator's **name** and which **category** they will
+evaluate (CT imaging / MRI imaging / Image analysis). Both are final: the paper list is limited to
+that category and links to papers outside it are refused. They are written into the data file
+itself — `evaluator_name`, `evaluator_category` and `evaluator_category_at` on every paper, plus the
+existing `evaluators` list — so they survive into processing and cannot be re-entered by clearing
+the browser.
 
 Each paper is evaluated in two stages, shown as tabs:
 

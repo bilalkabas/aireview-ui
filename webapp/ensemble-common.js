@@ -76,34 +76,57 @@ const PRETASK_MAX_ITEMS = 3;
 // The data file is the source of truth so it survives into processing; localStorage is
 // only a cache of what the file already says.
 const CATEGORY_STORAGE_KEY = 'ensembleCategory';
+const EVALUATOR_STORAGE_KEY = 'ensembleEvaluator';
 const CATEGORY_FIELD = 'evaluator_category';
 const CATEGORY_AT_FIELD = 'evaluator_category_at';
+const EVALUATOR_FIELD = 'evaluator_name';
 
 function getChosenCategory() {
     return localStorage.getItem(CATEGORY_STORAGE_KEY) || '';
 }
 
-// Reads the committed category out of the data file and refreshes the cache, so a
+function getEvaluatorName() {
+    return localStorage.getItem(EVALUATOR_STORAGE_KEY) || '';
+}
+
+// Reads the committed assignment out of the data file and refreshes the cache, so a
 // cleared browser cannot silently hand the evaluator a second choice.
 function syncCategoryFromPapers(papers) {
-    const fromFile = (papers || []).map(paper => paper[CATEGORY_FIELD]).find(Boolean) || '';
-    if (fromFile) {
-        localStorage.setItem(CATEGORY_STORAGE_KEY, fromFile);
+    const list = papers || [];
+    const category = list.map(paper => paper[CATEGORY_FIELD]).find(Boolean) || '';
+    const evaluator = list.map(paper => paper[EVALUATOR_FIELD]).find(Boolean) || '';
+
+    if (category) {
+        localStorage.setItem(CATEGORY_STORAGE_KEY, category);
     } else {
         localStorage.removeItem(CATEGORY_STORAGE_KEY);
     }
-    return fromFile;
+
+    if (evaluator) {
+        localStorage.setItem(EVALUATOR_STORAGE_KEY, evaluator);
+    } else {
+        localStorage.removeItem(EVALUATOR_STORAGE_KEY);
+    }
+
+    return category;
 }
 
-// Stamps every paper so the choice is a file-level fact, then persists it.
-async function commitCategory(papers, category) {
+// Stamps every paper so the assignment is a file-level fact, then persists it.
+// `evaluators` is the schema's existing per-paper list and is filled to match.
+async function commitCategory(papers, category, evaluatorName) {
     const timestamp = new Date().toISOString();
+    const name = (evaluatorName || '').trim();
+
     papers.forEach(paper => {
         paper[CATEGORY_FIELD] = category;
         paper[CATEGORY_AT_FIELD] = timestamp;
+        paper[EVALUATOR_FIELD] = name;
+        paper.evaluators = name ? [name] : [];
     });
+
     await saveEnsemblePapers(papers);
     localStorage.setItem(CATEGORY_STORAGE_KEY, category);
+    localStorage.setItem(EVALUATOR_STORAGE_KEY, name);
 }
 
 // Category values come from the data file in mixed case ("image analysis"); only the

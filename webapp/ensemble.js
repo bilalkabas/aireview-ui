@@ -49,6 +49,7 @@ async function loadPapers() {
 
 function initializeFilters() {
     document.getElementById('locked-category-name').textContent = categoryLabel(getChosenCategory());
+    document.getElementById('locked-category-evaluator').textContent = getEvaluatorName();
 
     document.querySelectorAll('.status-filter').forEach(input => {
         if (filters.statuses.has(input.value)) input.checked = true;
@@ -71,6 +72,7 @@ function requireCategory() {
 
     const gate = document.getElementById('category-gate');
     const options = document.getElementById('category-gate-options');
+    const nameInput = document.getElementById('category-gate-name');
     const confirm = document.getElementById('category-gate-confirm');
     let selected = '';
 
@@ -82,27 +84,37 @@ function requireCategory() {
     `).join('');
 
     gate.hidden = false;
+    nameInput.focus();
+
+    // Both answers are required before anything can be committed.
+    function refreshConfirm() {
+        confirm.disabled = !(selected && nameInput.value.trim());
+    }
 
     return new Promise(resolve => {
+        nameInput.addEventListener('input', refreshConfirm);
+
         options.querySelectorAll('input').forEach(input => {
             input.addEventListener('change', () => {
                 selected = input.value;
-                confirm.disabled = false;
+                refreshConfirm();
             });
         });
 
         confirm.addEventListener('click', async () => {
-            if (!selected) return;
+            const name = nameInput.value.trim();
+            if (!selected || !name) return;
+
             const label = categoryLabel(selected);
-            if (!window.confirm(`Evaluate "${label}" papers?\n\nThis choice is final and cannot be changed later.`)) return;
+            if (!window.confirm(`Start as "${name}" evaluating "${label}" papers?\n\nThis is final and cannot be changed later.`)) return;
 
             confirm.disabled = true;
             try {
-                await commitCategory(allPapers, selected);
+                await commitCategory(allPapers, selected, name);
             } catch (error) {
-                console.error('Error saving category:', error);
-                window.alert('Could not save your category. Check that the server is running, then try again.');
-                confirm.disabled = false;
+                console.error('Error saving your details:', error);
+                window.alert('Could not save your details. Check that the server is running, then try again.');
+                refreshConfirm();
                 return;
             }
 

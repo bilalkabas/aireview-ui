@@ -674,11 +674,48 @@ body.ensemble-page .evaluation-content {
     color: var(--color-text-secondary);
 }
 
+.category-gate-field {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.category-gate-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-tertiary);
+}
+
+.category-gate-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.category-gate-field input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
 .category-gate-options {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 16px;
+    margin: 6px 0 16px;
+}
+
+.locked-category-evaluator {
+    font-size: 12px;
+    color: var(--color-text-secondary);
 }
 
 .category-gate-warning {

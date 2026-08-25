@@ -27,11 +27,12 @@
 
                 <!-- Category (locked to the evaluator's choice) -->
                 <div class="filter-section">
-                    <h3 class="filter-header">Your category</h3>
+                    <h3 class="filter-header">Your assignment</h3>
                     <div class="filter-content">
                         <div class="locked-category" id="locked-category">
                             <span class="locked-category-name" id="locked-category-name">—</span>
                             <span class="locked-category-note">Locked for this phase</span>
+                            <span class="locked-category-evaluator" id="locked-category-evaluator"></span>
                         </div>
                     </div>
                 </div>
@@ -97,18 +98,25 @@
 
     <div class="category-gate" id="category-gate" hidden>
         <div class="category-gate-card" role="dialog" aria-modal="true" aria-labelledby="category-gate-title">
-            <h2 id="category-gate-title">Choose your category</h2>
+            <h2 id="category-gate-title">Before you start</h2>
             <p class="category-gate-intro">
-                You will evaluate the papers in one category only. Select the category you are
-                qualified to review.
+                Tell us who you are, then pick the one category you will evaluate. You will only
+                see the papers in that category.
             </p>
+            <label class="category-gate-field">
+                <span class="category-gate-label">Your name</span>
+                <input type="text" id="category-gate-name" placeholder="e.g. Jane Doe"
+                       autocomplete="name" spellcheck="false">
+            </label>
+            <span class="category-gate-label">Your category</span>
             <div class="category-gate-options" id="category-gate-options"></div>
             <p class="category-gate-warning">
-                <strong>This decision is final.</strong> Once you confirm, the category cannot be
-                changed and you will not be able to evaluate papers in any other category.
+                <strong>This decision is final.</strong> Once you confirm, your name and category
+                cannot be changed, and you will not be able to evaluate papers in any other
+                category.
             </p>
             <button type="button" class="primary-button" id="category-gate-confirm" disabled>
-                Confirm category
+                Confirm and start
             </button>
         </div>
     </div>
