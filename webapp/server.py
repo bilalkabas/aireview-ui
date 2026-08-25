@@ -68,6 +68,8 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 admin_mode = os.environ.get('WEBAPP_ADMIN_MODE', 'false').lower() == 'true'
 
                 config = {
+                    'reviewsFile': os.path.basename(REVIEWS_JSON_PATH),
+                    'ensembleMode': os.environ.get('WEBAPP_ENSEMBLE_MODE', 'false').lower() == 'true',
                     'showHarmonizedByDefault': os.environ.get('WEBAPP_SHOW_HARMONIZED_BY_DEFAULT', 'true').lower() == 'true',
                     'defaultHarmonizationModel': os.environ.get('WEBAPP_DEFAULT_HARMONIZATION_MODEL', 'gpt-4o-mini'),
                     'enableModelDropdown': admin_mode,
@@ -87,7 +89,9 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
                 self.wfile.write(f'Error loading config: {str(e)}'.encode('utf-8'))
-        elif self.path == '/reviews/evaluation-data-all-venues.json':
+        elif self.path.startswith('/reviews/') and self.path.endswith('.json'):
+            # Any /reviews/*.json request is served from the configured data file,
+            # so each phase (main / ensemble) can ask for its own filename.
             try:
                 with open(REVIEWS_JSON_PATH, 'r', encoding='utf-8') as f:
                     content = f.read()
@@ -108,7 +112,9 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 # Normalise and build the PDF file path
                 relative = os.path.normpath(self.path[len('/pdfs/'):])
 
-                if relative.startswith('..'):
+                # Only PDFs are served here, so a PDF root that sits next to other
+                # project files cannot be used to read them.
+                if relative.startswith('..') or not relative.lower().endswith('.pdf'):
                     self.send_response(403)
                     self.send_header('Content-type', 'text/plain')
                     self.end_headers()

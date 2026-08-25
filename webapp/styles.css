@@ -1351,7 +1351,7 @@ body.resizing iframe {
     cursor: pointer;
 }
 
-.tooltip .tooltiptext {
+.tooltiptext {
     visibility: hidden;
     width: 350px;
     max-width: 90vw;
@@ -1372,7 +1372,7 @@ body.resizing iframe {
     pointer-events: none;
 }
 
-.tooltip .tooltiptext::after {
+.tooltiptext::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -1383,7 +1383,7 @@ body.resizing iframe {
     border-color: var(--color-tooltip-bg) transparent transparent transparent;
 }
 
-.tooltip .tooltiptext.visible {
+.tooltiptext.visible {
     visibility: visible;
     opacity: 1;
 }

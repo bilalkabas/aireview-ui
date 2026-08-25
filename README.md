@@ -39,6 +39,51 @@ git clone https://github.com/bilalkabas/aireview-ui.git
 
 If the automated installer cannot add Python on your machine, install Python 3 manually, and re-run the script.
 
+## Ensemble Phase Console (`./run_ensemble`)
+
+The ensemble phase uses a second, self-contained UI. Start it with:
+
+```
+./run_ensemble
+```
+
+It opens `http://localhost:8091/ensemble.html` (port 8091 by default, so it can run alongside `./run`)
+and serves `reviews/evaluation-data-ensemble.json` — reviews only, no harmonized variants and no
+evaluator assignments.
+
+On first visit the console asks which **category** you will evaluate (CT imaging / MRI imaging /
+Image analysis). The choice is final: the paper list is limited to that category and links to papers
+outside it are refused. It is written into the data file itself — `evaluator_category` and
+`evaluator_category_at` on every paper — so it survives into processing and cannot be re-picked by
+clearing the browser.
+
+Each paper is evaluated in two stages, shown as tabs:
+
+1. **Pre-task** — your own reading of the manuscript, before seeing any review:
+   a provisional recommendation (Desk-Reject / Reject from peer review / Major Revision),
+   your confidence in it (1–7), up to three major concerns, and up to three major strengths.
+   The reviews are not loaded into the page until this is submitted, and submitting locks the
+   answers (they stay readable, but cannot be edited).
+2. **Review Evaluation** — unlocked right after submitting the pre-task. Every review is rated on a
+   7-point Likert scale against the Stage 3 rubric: Accuracy/Rigor, Specificity, Novelty,
+   Decisiveness, and Integrity/Usefulness — plus a free-form comment. Everything is saved back
+   to the JSON as you go.
+
+PDFs are **never downloaded** in this phase — put the TMI PDFs in `AI4TMI_pdfs/` in the project
+root (matching each paper's `url`) and the launcher reports how many it found at startup.
+
+Options: `./run_ensemble --port 8100`, `--no-browser`.
+
+Configuration (all optional, in `.env`):
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `WEBAPP_ENSEMBLE_REVIEWS_JSON` | `reviews/evaluation-data-ensemble.json` | Dataset served in this phase |
+| `WEBAPP_ENSEMBLE_PORT` | `8091` | Server port |
+| `WEBAPP_ENSEMBLE_PDFS_ROOT` | `.` (project root) | Directory the paper `url` values are relative to |
+| `WEBAPP_ENSEMBLE_PDFS_SUBDIR` | `AI4TMI_pdfs` | Sub-directory holding the PDFs (checked at startup) |
+| `WEBAPP_ENSEMBLE_ADMIN_MODE` | `false` | `true` shows reviewer labels (reveals AI vs human) |
+
 ## Evaluation & Analysis
 
 To analyze the collected review data and generate performance reports (Human vs AI, Turing Tests, etc.):

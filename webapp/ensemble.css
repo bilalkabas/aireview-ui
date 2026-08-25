@@ -1,0 +1,701 @@
+/* Ensemble phase — styles layered on top of styles.css */
+
+/* ---------------------------------------------------------------- papers list */
+
+/* The badge and the chip sit on one row and share its height, so their pills line up. */
+.paper-meta .status-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.paper-meta .status-row .status-badge {
+    margin-bottom: 0;
+}
+
+.pretask-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border: 1px solid transparent;
+}
+
+.pretask-chip.done {
+    background: var(--status-completed-bg);
+    color: var(--status-completed);
+}
+
+.pretask-chip.pending {
+    background: var(--stats-neutral-bg);
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+}
+
+/* ---------------------------------------------------------------- stage tabs */
+
+.stage-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 6px;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    position: sticky;
+    top: 0;
+    /* Above the sticky review headers (z-index 100) so the tabs stay reachable. */
+    z-index: 200;
+    box-shadow: 0 6px 16px -12px rgba(15, 23, 42, 0.6);
+}
+
+.stage-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.stage-tab:hover {
+    background: var(--color-hover);
+}
+
+.stage-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: #ffffff;
+    box-shadow: var(--color-shadow-hover);
+}
+
+.stage-tab-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--color-border);
+    color: var(--color-text-primary);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.stage-tab.active .stage-tab-number {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+.stage-tab-label {
+    white-space: nowrap;
+}
+
+.stage-tab-state {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    opacity: 0.75;
+}
+
+.stage-tab.is-locked .stage-tab-state::before {
+    content: "🔒 ";
+}
+
+.tab-panel {
+    display: none;
+    padding-top: 16px;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.stage-intro {
+    font-size: 14px;
+    color: var(--color-text-tertiary);
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------- pre-task form */
+
+.pretask-block {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+
+.pretask-block.locked {
+    background: var(--color-surface-alt);
+}
+
+.pretask-question {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pretask-hint {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 2px solid var(--color-border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+    border-color: #667eea;
+    background: var(--color-hover);
+}
+
+.radio-option.selected {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.12);
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.radio-option input[type="radio"] {
+    accent-color: #667eea;
+    width: 16px;
+    height: 16px;
+}
+
+.radio-option:has(input:disabled) {
+    cursor: default;
+    opacity: 0.85;
+}
+
+.radio-option:has(input:disabled):hover {
+    border-color: var(--color-border);
+    background: transparent;
+}
+
+.radio-option.selected:has(input:disabled):hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.12);
+}
+
+.pretask-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pretask-text {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.pretask-text:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.pretask-text:disabled {
+    background: var(--color-surface-alt);
+    color: var(--color-text-secondary);
+    opacity: 1;
+    cursor: default;
+}
+
+.locked-banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    background: var(--status-completed-bg);
+    color: var(--status-completed);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pretask-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+    margin-bottom: 24px;
+}
+
+.pretask-actions.locked {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.pretask-locked-note {
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+}
+
+.pretask-warning {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--status-in-progress-progress);
+    background: var(--status-in-progress-bg);
+    color: var(--color-text-primary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pretask-submit-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.pretask-missing {
+    font-size: 12px;
+    color: var(--status-not-started);
+}
+
+.primary-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.primary-button:hover:not(:disabled) {
+    box-shadow: var(--color-shadow-hover);
+    transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------- likert scale */
+
+.likert {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.likert-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.likert-btn {
+    flex: 1;
+    min-width: 26px;
+    padding: 6px 0;
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.likert-btn:hover:not(:disabled) {
+    border-color: #667eea;
+    background: var(--color-hover);
+}
+
+.likert-btn.selected {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: #ffffff;
+}
+
+.likert-btn:disabled {
+    cursor: default;
+}
+
+.likert-btn:disabled:not(.selected) {
+    opacity: 0.6;
+}
+
+.likert-caption {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+}
+
+/* ---------------------------------------------------------------- reviews stage */
+
+.reviews-lock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    padding: 48px 24px;
+    border: 2px dashed var(--color-border);
+    border-radius: 16px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+}
+
+.reviews-lock[hidden] {
+    display: none;
+}
+
+.reviews-lock-icon {
+    color: var(--color-text-tertiary);
+}
+
+.reviews-lock h3 {
+    font-size: 18px;
+    color: var(--color-text-primary);
+}
+
+.reviews-lock p {
+    max-width: 460px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.reviews-lock .primary-button {
+    margin-top: 6px;
+}
+
+/* The ensemble rubric uses 7 buttons per metric, so the sidebar needs more room. */
+.metrics-sidebar.ensemble-metrics {
+    /* Seven stars need less room than seven buttons did, so the sidebar leaves
+       more of the split view to the review text. */
+    min-width: 185px;
+    max-width: 210px;
+    gap: 8px;
+    padding: 10px 12px;
+    transition: min-width 0.2s, max-width 0.2s, padding 0.2s;
+}
+
+.metrics-sidebar.ensemble-metrics .metrics-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.metrics-toggle {
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    /* A small brand-coloured disc: readable at a glance, and negative margins keep
+       it from adding a row's worth of height above the first metric. */
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin: -4px -2px -8px 0;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.35);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 0;
+    cursor: pointer;
+    /* Stays reachable when the sidebar itself scrolls. */
+    position: sticky;
+    top: -2px;
+    z-index: 1;
+    transition: filter 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.metrics-toggle:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.5);
+}
+
+.metrics-toggle .metrics-toggle-badge {
+    display: none;
+}
+
+/* Collapsed: the sidebar shrinks to a bubble and the review text takes the space. */
+.metrics-sidebar.ensemble-metrics.collapsed {
+    min-width: 0;
+    max-width: none;
+    width: auto;
+    padding: 6px;
+    gap: 0;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.metrics-sidebar.ensemble-metrics.collapsed .metrics-body {
+    display: none;
+}
+
+.metrics-sidebar.ensemble-metrics.collapsed .metrics-toggle {
+    position: static;
+    align-self: center;
+    flex-direction: column;
+    gap: 1px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 7px 6px;
+    border-radius: 999px;
+    line-height: 1;
+}
+
+.metrics-toggle svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.metrics-sidebar.ensemble-metrics.collapsed .metrics-toggle svg {
+    width: 16px;
+    height: 16px;
+    transform: rotate(180deg);
+}
+
+.metrics-sidebar.ensemble-metrics.collapsed .metrics-toggle-badge {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.2px;
+}
+
+.metrics-sidebar.ensemble-metrics .metric-label {
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+.metrics-sidebar.ensemble-metrics .metric-stars {
+    gap: 2px;
+}
+
+.metrics-sidebar.ensemble-metrics .star {
+    font-size: 15px;
+}
+
+.metrics-sidebar.ensemble-metrics .metric-comment {
+    font-size: 12px;
+    padding: 6px 8px;
+}
+
+.metrics-sidebar.ensemble-metrics .clear-evaluation-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+/* Keep the sticky review headers and metrics sidebar clear of the sticky tab bar. */
+#panel-reviews .review-header {
+    top: var(--stage-tabs-offset, 56px);
+}
+
+#panel-reviews .metrics-sidebar {
+    /* Clears the sticky tab bar plus the sticky review header above it. */
+    top: calc(var(--stage-tabs-offset, 56px) + var(--review-header-offset, 34px) + 8px);
+    max-height: calc(100vh - var(--stage-tabs-offset, 56px) - var(--review-header-offset, 34px) - 150px);
+}
+
+/* ---------------------------------------------------------------- tooltips */
+
+/* Flipped below its icon: the arrow moves to the top edge and points up. */
+.tooltiptext.below::after {
+    top: auto;
+    bottom: 100%;
+    border-color: transparent transparent var(--color-tooltip-bg) transparent;
+}
+
+/* ---------------------------------------------------------------- compact header */
+
+/* The evaluation work happens below the header, so the page chrome is kept slim
+   and the space it gives up goes to the panels. */
+body.ensemble-page header {
+    padding: 7px 18px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+}
+
+body.ensemble-page header h1 {
+    font-size: 15px;
+}
+
+.ensemble-page .nav-button {
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.ensemble-page .nav-button svg {
+    width: 14px;
+    height: 14px;
+}
+
+.ensemble-page .back-button {
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+.ensemble-page .theme-toggle {
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
+.ensemble-page .paper-position {
+    font-size: 12px;
+}
+
+body.ensemble-page .evaluation-content {
+    height: calc(100vh - 90px);
+}
+
+/* ---------------------------------------------------------------- category gate */
+
+.locked-category {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface-alt);
+}
+
+.locked-category-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.locked-category-note {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-tertiary);
+}
+
+/* Blocking: there is no dismiss affordance, only the confirm button. */
+.category-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+}
+
+.category-gate[hidden] {
+    display: none;
+}
+
+.category-gate-card {
+    width: 100%;
+    max-width: 460px;
+    padding: 24px;
+    border-radius: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.35);
+}
+
+.category-gate-card h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    color: var(--color-text-primary);
+}
+
+.category-gate-intro {
+    margin: 0 0 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+}
+
+.category-gate-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.category-gate-warning {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.category-gate-warning strong {
+    color: #ef4444;
+}
+
+.category-gate .primary-button {
+    width: 100%;
+}

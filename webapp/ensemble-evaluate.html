@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ensemble Evaluation Console - Evaluation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ensemble.css">
+    <script src="theme.js" defer></script>
+</head>
+<body class="evaluation-page ensemble-page">
+    <div class="container">
+        <header>
+            <div class="header-right">
+                <button id="prev-paper-btn" class="nav-button" title="Previous Paper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <span id="paper-position" class="paper-position"></span>
+                <button id="next-paper-btn" class="nav-button" title="Next Paper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <h1>Ensemble Evaluation Console: Evaluation</h1>
+            <div class="header-left">
+                <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">
+                    <span class="theme-toggle-icon" aria-hidden="true">☀️</span>
+                    <span class="theme-toggle-label">Light</span>
+                </button>
+                <a href="ensemble.html" class="back-button" id="back-button">← Back to Papers</a>
+            </div>
+        </header>
+
+        <div class="evaluation-content">
+            <!-- Paper Info, Pre-task & Reviews -->
+            <div class="paper-panel" id="paper-panel">
+                <div class="paper-info">
+                    <div class="paper-title-row">
+                        <h2 id="paper-title">Loading...</h2>
+                        <a id="pdf-link-icon" href="#" target="_blank" class="pdf-link-icon" title="Open PDF in new tab">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                        </a>
+                    </div>
+                    <ul class="paper-meta">
+                        <li><span id="paper-status"></span></li>
+                        <li><strong>Category:</strong> <span id="paper-category"></span></li>
+                        <li><strong>Manuscript:</strong> <span id="paper-manuscript"></span></li>
+                    </ul>
+                    <details class="abstract-section">
+                        <summary>Abstract</summary>
+                        <p id="paper-abstract"></p>
+                    </details>
+                </div>
+
+                <!-- Stage tabs -->
+                <div class="stage-tabs" role="tablist">
+                    <button type="button" class="stage-tab active" id="tab-pretask" role="tab"
+                            aria-selected="true" aria-controls="panel-pretask" data-tab="pretask">
+                        <span class="stage-tab-number">1</span>
+                        <span class="stage-tab-label">Pre-task</span>
+                        <span class="stage-tab-state" id="tab-pretask-state"></span>
+                    </button>
+                    <button type="button" class="stage-tab" id="tab-reviews" role="tab"
+                            aria-selected="false" aria-controls="panel-reviews" data-tab="reviews">
+                        <span class="stage-tab-number">2</span>
+                        <span class="stage-tab-label">Review Evaluation</span>
+                        <span class="stage-tab-state" id="tab-reviews-state"></span>
+                    </button>
+                </div>
+
+                <!-- Stage 1: Pre-task -->
+                <section class="tab-panel active" id="panel-pretask" role="tabpanel" aria-labelledby="tab-pretask">
+                    <p class="stage-intro">
+                        Read the manuscript first and record your own provisional assessment. The AI and human
+                        reviews stay hidden until this pre-task is submitted.
+                    </p>
+                    <div id="pretask-form"></div>
+                    <div id="pretask-actions"></div>
+                </section>
+
+                <!-- Stage 2: Review Evaluation -->
+                <section class="tab-panel" id="panel-reviews" role="tabpanel" aria-labelledby="tab-reviews">
+                    <div class="reviews-lock" id="reviews-lock">
+                        <div class="reviews-lock-icon" aria-hidden="true">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <h3>Reviews are locked</h3>
+                        <p>Complete and submit the Pre-task first. Your independent assessment must be recorded before you can read the reviews.</p>
+                        <button type="button" class="primary-button" id="go-to-pretask-btn">Go to Pre-task</button>
+                    </div>
+
+                    <div class="reviews-section" id="reviews-section" hidden>
+                        <div class="reviews-header">
+                            <h3>Reviews</h3>
+                            <button id="toggle-all-reviews" class="toggle-all-btn" title="Collapse all reviews">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                <span>Collapse All</span>
+                            </button>
+                        </div>
+                        <div id="reviews-list"></div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Resizer -->
+            <div class="resizer" id="resizer"></div>
+
+            <!-- PDF Viewer -->
+            <div class="pdf-panel" id="pdf-panel">
+                <iframe id="pdf-viewer" type="application/pdf" width="100%" height="100%"></iframe>
+                <div id="pdf-fallback" style="display: none; padding: 20px; text-align: center;">
+                    <p class="pdf-fallback-title">Unable to display PDF in browser.</p>
+                    <p class="pdf-fallback-note">Use the link icon next to the title to open the PDF.</p>
+                    <a id="pdf-fallback-link" href="#" target="_blank" class="pdf-button">Open PDF in New Tab</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="ensemble-common.js"></script>
+    <script src="ensemble-evaluate.js"></script>
+</body>
+</html>
