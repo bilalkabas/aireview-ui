@@ -32,6 +32,8 @@ async function loadPapers() {
         loadSavedFilters();
         // The file, not the browser, decides whether a category is already committed.
         syncCategoryFromPapers(allPapers);
+        // Wired before the gate so the header control is never inert.
+        setupDownloadButton();
         // Nothing else is usable until the evaluator has committed to a category.
         await requireCategory();
         initializeFilters();
@@ -225,7 +227,9 @@ function updateStatistics(papers) {
 }
 
 function renderPapers() {
-    const filteredPapers = filterPapers();
+    // The evaluator's seed fixes the order, so it is the same on every visit and
+    // matches the prev/next order on the evaluation page.
+    const filteredPapers = seededShuffle(filterPapers(), getDisplaySeed(allPapers));
     const container = document.getElementById('papers-list');
 
     updateStatistics(filteredPapers);

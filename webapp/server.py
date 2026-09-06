@@ -89,9 +89,10 @@ class EvaluationHandler(SimpleHTTPRequestHandler):
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
                 self.wfile.write(f'Error loading config: {str(e)}'.encode('utf-8'))
-        elif self.path.startswith('/reviews/') and self.path.endswith('.json'):
+        elif self.path.startswith('/reviews/') and self.path.split('?')[0].endswith('.json'):
             # Any /reviews/*.json request is served from the configured data file,
-            # so each phase (main / ensemble) can ask for its own filename.
+            # so each phase (main / ensemble) can ask for its own filename. The query
+            # string is ignored, so a cache-busting suffix still resolves.
             try:
                 with open(REVIEWS_JSON_PATH, 'r', encoding='utf-8') as f:
                     content = f.read()

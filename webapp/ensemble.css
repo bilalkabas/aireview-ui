@@ -736,3 +736,31 @@ body.ensemble-page .evaluation-content {
 .category-gate .primary-button {
     width: 100%;
 }
+
+/* ---------------------------------------------------------------- download widget */
+
+.download-json {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border: 2px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.download-json:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.download-json svg {
+    flex-shrink: 0;
+}

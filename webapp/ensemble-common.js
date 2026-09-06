@@ -80,6 +80,66 @@ const EVALUATOR_STORAGE_KEY = 'ensembleEvaluator';
 const CATEGORY_FIELD = 'evaluator_category';
 const CATEGORY_AT_FIELD = 'evaluator_category_at';
 const EVALUATOR_FIELD = 'evaluator_name';
+const SEED_FIELD = 'display_seed';
+
+// ---------------------------------------------------------------- ordering
+
+// mulberry32. Every operation is a 32-bit integer op (Math.imul, >>>, ^), so the
+// sequence is identical on every platform and browser — no floating-point drift,
+// no dependence on the host's Math.random.
+function seededRandom(seed) {
+    let state = seed >>> 0;
+    return function () {
+        state = (state + 0x6D2B79F5) >>> 0;
+        let t = state;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+// Derives a distinct but reproducible seed per paper from the evaluator's seed.
+function deriveSeed(seed, salt) {
+    return (Math.imul(seed >>> 0, 0x9E3779B1) ^ Math.imul(salt + 1, 0x85EBCA6B)) >>> 0;
+}
+
+// Fisher-Yates, so the result depends only on the seed and the input order.
+function seededShuffle(array, seed) {
+    const rng = seededRandom(seed);
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+function getDisplaySeed(papers) {
+    const value = (papers || []).map(paper => paper[SEED_FIELD]).find(v => Number.isInteger(v));
+    return Number.isInteger(value) ? value : 0;
+}
+
+// ---------------------------------------------------------------- timing
+
+// Start is the first activity in a stage; end is rewritten by every activity that
+// could be the last one, so the final write is the real end.
+function getTiming(paper) {
+    if (!paper.timing || typeof paper.timing !== 'object') paper.timing = {};
+    const timing = paper.timing;
+    ['pretask_started_at', 'pretask_ended_at', 'evaluation_started_at', 'evaluation_ended_at']
+        .forEach(key => { if (typeof timing[key] !== 'string') timing[key] = ''; });
+    return timing;
+}
+
+function markStageStart(paper, stage) {
+    const timing = getTiming(paper);
+    const key = `${stage}_started_at`;
+    if (!timing[key]) timing[key] = new Date().toISOString();
+}
+
+function markStageEnd(paper, stage) {
+    getTiming(paper)[`${stage}_ended_at`] = new Date().toISOString();
+}
 
 function getChosenCategory() {
     return localStorage.getItem(CATEGORY_STORAGE_KEY) || '';
@@ -116,11 +176,15 @@ function syncCategoryFromPapers(papers) {
 async function commitCategory(papers, category, evaluatorName) {
     const timestamp = new Date().toISOString();
     const name = (evaluatorName || '').trim();
+    // One seed per evaluator, drawn here and never again; it fixes the order of
+    // both the paper list and the reviews within each paper.
+    const seed = Math.floor(Math.random() * 0x7FFFFFFF);
 
     papers.forEach(paper => {
         paper[CATEGORY_FIELD] = category;
         paper[CATEGORY_AT_FIELD] = timestamp;
         paper[EVALUATOR_FIELD] = name;
+        paper[SEED_FIELD] = seed;
         paper.evaluators = name ? [name] : [];
     });
 
@@ -294,4 +358,48 @@ async function saveEnsemblePapers(papers) {
         console.error('Error saving evaluation:', error);
         return false;
     }
+}
+
+// ---------------------------------------------------------------- results download
+
+function resultsFileName() {
+    const slug = value => (value || '')
+        .trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    const parts = ['evaluation', slug(getEvaluatorName()), slug(getChosenCategory())].filter(Boolean);
+    return `${parts.join('-')}.json`;
+}
+
+// Downloads whatever is currently on disk, so a pending autosave cannot be missed.
+async function downloadResults(button) {
+    const label = button ? button.querySelector('.download-json-label') : null;
+    const original = label ? label.textContent : '';
+
+    try {
+        if (label) label.textContent = 'Preparing…';
+        const response = await fetch(`${ENSEMBLE_DATA_URL}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const url = URL.createObjectURL(await response.blob());
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = resultsFileName();
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        if (label) label.textContent = 'Saved';
+    } catch (error) {
+        console.error('Error downloading results:', error);
+        window.alert('Could not download the results file. Check that the console is still running.');
+    } finally {
+        if (label) setTimeout(() => { label.textContent = original; }, 1200);
+    }
+}
+
+function setupDownloadButton() {
+    document.querySelectorAll('[data-download-json]').forEach(button => {
+        button.addEventListener('click', () => downloadResults(button));
+    });
 }

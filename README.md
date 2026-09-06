@@ -58,6 +58,11 @@ itself — `evaluator_name`, `evaluator_category` and `evaluator_category_at` on
 existing `evaluators` list — so they survive into processing and cannot be re-entered by clearing
 the browser.
 
+The order of the papers and of the reviews within each paper is randomised per evaluator. A seed is
+drawn once, when the evaluator is registered, and stored as `display_seed`; the shuffle uses a
+32-bit integer PRNG (mulberry32), so the same seed reproduces the same order on any machine,
+browser, or OS.
+
 Each paper is evaluated in two stages, shown as tabs:
 
 1. **Pre-task** — your own reading of the manuscript, before seeing any review:
@@ -72,6 +77,14 @@ Each paper is evaluated in two stages, shown as tabs:
 
 PDFs are **never downloaded** in this phase — put the TMI PDFs in `AI4TMI_pdfs/` in the project
 root (matching each paper's `url`) and the launcher reports how many it found at startup.
+
+Timestamps are recorded per paper under `timing`: `pretask_started_at` /
+`evaluation_started_at` are stamped by the first activity in each stage, and
+`pretask_ended_at` / `evaluation_ended_at` are rewritten by every subsequent activity, so the last
+one recorded is the real end.
+
+A **Download JSON** button in the header of both pages saves the current results file, named after
+the evaluator and category (e.g. `evaluation-jane-doe-ct-imaging.json`).
 
 Options: `./run_ensemble --port 8100`, `--no-browser`.
 

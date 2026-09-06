@@ -61,7 +61,7 @@ function getFilteredPapers() {
         indices.push(index);
     });
 
-    return indices;
+    return seededShuffle(indices, getDisplaySeed(allPapers));
 }
 
 async function loadPapers() {
@@ -96,6 +96,7 @@ async function loadPapers() {
 
         renderPaper();
         setupResizer();
+        setupDownloadButton();
         updateNavigationButtons();
     } catch (error) {
         console.error('Error loading paper:', error);
@@ -103,17 +104,26 @@ async function loadPapers() {
     }
 }
 
-async function persist() {
+async function persist(stage) {
+    if (stage) {
+        markStageStart(currentPaper, stage);
+        markStageEnd(currentPaper, stage);
+    }
     currentPaper.status = computeStatus(currentPaper);
     allPapers[currentPaperIndex] = currentPaper;
     await saveEnsemblePapers(allPapers);
+}
+
+// Both save paths carry the stage the edit belongs to: 'pretask' or 'evaluation'.
+function stageForKey(key) {
+    return key.startsWith('pretask') ? 'pretask' : 'evaluation';
 }
 
 function scheduleSave(key) {
     if (saveTimeouts[key]) clearTimeout(saveTimeouts[key]);
     saveTimeouts[key] = setTimeout(async () => {
         saveTimeouts[key] = null;
-        await persist();
+        await persist(stageForKey(key));
     }, 600);
 }
 
@@ -122,7 +132,7 @@ async function flushSave(key) {
         clearTimeout(saveTimeouts[key]);
         saveTimeouts[key] = null;
     }
-    await persist();
+    await persist(stageForKey(key));
 }
 
 // ---------------------------------------------------------------- page rendering
@@ -393,24 +403,6 @@ async function submitPretask() {
 
 // ---------------------------------------------------------------- stage 2: reviews
 
-function seededRandom(seed) {
-    let state = seed;
-    return function () {
-        state = (state * 1103515245 + 12345) & 0x7fffffff;
-        return state / 0x7fffffff;
-    };
-}
-
-function shuffleWithSeed(array, seed) {
-    const rng = seededRandom(seed);
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(rng() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
-
 function renderReviews() {
     closeAllTooltips();
     const lock = document.getElementById('reviews-lock');
@@ -437,9 +429,7 @@ function renderReviews() {
     // Present reviews in a per-paper shuffled order, but always store ratings
     // against the review's original index in the data file.
     let ordered = reviews.map((review, originalIndex) => ({ review, originalIndex }));
-    if (appConfig && appConfig.shuffleReviews) {
-        ordered = shuffleWithSeed(ordered, appConfig.shuffleSeed + currentPaperIndex);
-    }
+    ordered = seededShuffle(ordered, deriveSeed(getDisplaySeed(allPapers), currentPaperIndex));
 
     container.innerHTML = ordered.map(({ review, originalIndex }, displayIndex) => {
         const html = review.text ? marked.parse(review.text) : 'No review text available';
@@ -574,7 +564,7 @@ function setupStarMetrics() {
                 });
                 updateStatusDisplay();
                 refreshMetricsBadges();
-                await persist();
+                await persist('evaluation');
             });
         });
 
@@ -617,7 +607,7 @@ function setupClearEvaluationButtons() {
             ENSEMBLE_METRICS.forEach(metric => { metrics[metric.key] = 0; });
             metrics.comment = '';
 
-            await persist();
+            await persist('evaluation');
             renderReviews();
             updateStatusDisplay();
         });
