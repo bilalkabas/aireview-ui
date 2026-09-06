@@ -65,9 +65,10 @@ const CONFIDENCE_TOOLTIP = `1 = Not at all confident.
 
 // Stage 1 (pre-task) provisional recommendation options.
 const RECOMMENDATION_OPTIONS = [
-    { value: 'desk_reject', label: 'Desk-Reject' },
-    { value: 'reject_from_peer_review', label: 'Reject from peer review' },
-    { value: 'major_revision', label: 'Major Revision' }
+    { value: 'reject', label: 'Reject' },
+    { value: 'reject_resubmit', label: 'Reject / Resubmit' },
+    { value: 'accept_minor_revision', label: 'Accept with Minor Revision' },
+    { value: 'accept', label: 'Accept' }
 ];
 
 const PRETASK_MAX_ITEMS = 3;

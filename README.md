@@ -66,7 +66,7 @@ browser, or OS.
 Each paper is evaluated in two stages, shown as tabs:
 
 1. **Pre-task** — your own reading of the manuscript, before seeing any review:
-   a provisional recommendation (Desk-Reject / Reject from peer review / Major Revision),
+   a provisional recommendation (Reject / Reject-Resubmit / Accept with Minor Revision / Accept),
    your confidence in it (1–7), up to three major concerns, and up to three major strengths.
    The reviews are not loaded into the page until this is submitted, and submitting locks the
    answers (they stay readable, but cannot be edited).
