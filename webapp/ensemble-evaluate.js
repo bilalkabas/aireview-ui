@@ -97,6 +97,7 @@ async function loadPapers() {
         renderPaper();
         setupResizer();
         setupDownloadButton();
+        setupTour();
         updateNavigationButtons();
     } catch (error) {
         console.error('Error loading paper:', error);
@@ -852,3 +853,53 @@ function setupResizer() {
 }
 
 loadPapers();
+
+// ---------------------------------------------------------------- guided tour
+
+const PAPER_TOUR_STEPS = [
+    {
+        title: 'Two stages per paper',
+        body: 'Each paper is done in two steps: first your own reading of the manuscript, then your '
+            + 'rating of the reviews. This tour points out where each of them lives.'
+    },
+    {
+        target: '#pdf-panel',
+        title: 'The manuscript',
+        body: 'The full PDF is here. Drag the divider to give it more or less room.'
+    },
+    {
+        target: '.stage-tabs',
+        title: 'Stage 1, then stage 2',
+        body: 'The second tab is locked until you submit the pre-task. That is deliberate: your own '
+            + 'judgment is recorded before you see any review.'
+    },
+    {
+        target: '#pretask-form',
+        title: 'Your own judgment',
+        body: 'A provisional recommendation, how confident you are, and up to three concerns and '
+            + 'strengths. One concern is required; strengths are optional.'
+    },
+    {
+        target: '#pretask-actions',
+        title: 'Submitting locks it',
+        body: 'Once submitted these answers become read-only — you can still read them, but not '
+            + 'change them. The reviews unlock immediately afterwards.'
+    },
+    {
+        target: '#paper-position',
+        title: 'Moving between papers',
+        body: 'These arrows step through your papers in your own fixed order. Everything is saved as '
+            + 'you go, so you can stop whenever you like.'
+    }
+];
+
+function setupTour() {
+    document.querySelectorAll('[data-tour-replay]').forEach(button => {
+        button.addEventListener('click', () => startTour('paper', PAPER_TOUR_STEPS));
+    });
+
+    // Shown the first time a paper is opened, once the layout has settled.
+    if (!hasSeenTour('paper')) {
+        setTimeout(() => startTour('paper', PAPER_TOUR_STEPS), 700);
+    }
+}

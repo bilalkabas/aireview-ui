@@ -764,3 +764,128 @@ body.ensemble-page .evaluation-content {
 .download-json svg {
     flex-shrink: 0;
 }
+
+/* ---------------------------------------------------------------- guided tour */
+
+.tour-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border: 2px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.tour-button:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+body.tour-open {
+    overflow: hidden;
+}
+
+.tour-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+}
+
+/* The cut-out: a transparent box with an enormous shadow dimming everything else. */
+.tour-hole {
+    position: fixed;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.62);
+    border: 2px solid #667eea;
+    pointer-events: none;
+    transition: top 0.2s, left 0.2s, width 0.2s, height 0.2s;
+}
+
+.tour-hole[hidden] {
+    display: none;
+}
+
+/* With no cut-out the whole screen is dimmed instead. */
+.tour-overlay:has(.tour-hole[hidden]) {
+    background: rgba(15, 23, 42, 0.62);
+}
+
+.tour-card {
+    position: fixed;
+    width: min(360px, calc(100vw - 32px));
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.32);
+    transition: top 0.2s, left 0.2s;
+}
+
+.tour-step-count {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+}
+
+.tour-title {
+    margin: 4px 0 8px;
+    font-size: 17px;
+    color: var(--color-text-primary);
+}
+
+.tour-body {
+    margin: 0 0 16px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+}
+
+.tour-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tour-nav {
+    display: flex;
+    gap: 8px;
+}
+
+.tour-skip,
+.tour-back {
+    padding: 7px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tour-skip:hover,
+.tour-back:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.tour-next {
+    padding: 7px 18px;
+    font-size: 13px;
+}
+
+.tour-back[hidden] {
+    display: none;
+}

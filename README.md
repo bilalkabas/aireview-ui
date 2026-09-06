@@ -63,6 +63,9 @@ drawn once, when the evaluator is registered, and stored as `display_seed`; the 
 32-bit integer PRNG (mulberry32), so the same seed reproduces the same order on any machine,
 browser, or OS.
 
+A guided tour runs once for a newly registered evaluator — first on the paper list, then again the
+first time a paper is opened — and can be replayed from the **Tour** button in the header.
+
 Each paper is evaluated in two stages, shown as tabs:
 
 1. **Pre-task** — your own reading of the manuscript, before seeing any review:

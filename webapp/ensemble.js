@@ -38,6 +38,7 @@ async function loadPapers() {
         await requireCategory();
         initializeFilters();
         renderPapers();
+        setupTour();
     } catch (error) {
         console.error('Error loading papers:', error);
         document.getElementById('papers-list').innerHTML = `
@@ -309,3 +310,48 @@ function setupCollapsibleHeaders() {
 
 setupCollapsibleHeaders();
 loadPapers();
+
+// ---------------------------------------------------------------- guided tour
+
+const LIST_TOUR_STEPS = [
+    {
+        title: 'Welcome',
+        body: 'A quick tour of the console — about 30 seconds. You can leave at any time with Skip, '
+            + 'and reopen it later from the Tour button in the header.'
+    },
+    {
+        target: '#locked-category',
+        title: 'Your assignment',
+        body: 'Your name and category are fixed for the whole study. Only the papers in your '
+            + 'category appear below, in an order chosen at random for you.'
+    },
+    {
+        target: '#papers-stats-bar',
+        title: 'Your progress',
+        body: 'How many of your papers are finished, started, or still untouched. A paper counts as '
+            + 'completed once the pre-task is submitted and every review is rated.'
+    },
+    {
+        target: '.paper-card',
+        title: 'A paper',
+        body: 'Click a paper to open it. The badges show how far along it is and whether the '
+            + 'pre-task has been submitted. Everything saves automatically as you work.'
+    },
+    {
+        target: '[data-download-json]',
+        title: 'Sending results back',
+        body: 'When you are done, this saves your results file, already named after you. That is '
+            + 'the file to send back.'
+    }
+];
+
+function setupTour() {
+    document.querySelectorAll('[data-tour-replay]').forEach(button => {
+        button.addEventListener('click', () => startTour('list', LIST_TOUR_STEPS));
+    });
+
+    // Only for a newly registered evaluator; returning visits go straight to work.
+    if (!hasSeenTour('list')) {
+        setTimeout(() => startTour('list', LIST_TOUR_STEPS), 400);
+    }
+}
