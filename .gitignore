@@ -1,5 +1,7 @@
-pdfs
+.env
 .venv/
 __pycache__/
-data/
 statistics_output/
+pdfs*
+AI4TMI_pdfs
+data/

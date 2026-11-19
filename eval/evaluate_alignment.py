@@ -27,8 +27,26 @@ if not api_key:
 
 client = OpenAI(api_key=api_key)
 
+
 SCORING_MODEL = "gpt-5.2" 
 EMBEDDING_MODEL = "text-embedding-3-large"
+FONT_SCALE = 2.0
+AXIS_LEGEND_SCALE = 2.
+
+NAME_MAPPING = {
+    "gpt-5-chat-latest": "Duke",
+    "claude-sonnet-4-20250514": "A*STAR",
+    "hkust-reviewer": "HKUST",
+    "stanford": "Stanford",
+    "rpi": "RPI",
+    "fudan": "Fudan",
+    "Bernhard": "E1",
+    "Guang": "E2",
+    "Justin": "E3",
+    "Luping": "E4",
+    "Tolga": "E5",
+    "Yixuan": "E6"
+}
 
 # Define Prompt Template Globally
 SCORING_PROMPT_TEMPLATE = """
@@ -105,6 +123,14 @@ def plot_distributions(df, output_dir):
     plot_dir.mkdir(exist_ok=True)
     
     sns.set_theme(style="whitegrid")
+    sns.set_context("notebook", rc={
+        "axes.titlesize": 12 * FONT_SCALE,
+        "axes.labelsize": 12 * AXIS_LEGEND_SCALE,
+        "xtick.labelsize": 11 * AXIS_LEGEND_SCALE,
+        "ytick.labelsize": 11 * AXIS_LEGEND_SCALE,
+        "legend.fontsize": 11 * AXIS_LEGEND_SCALE,
+        "font.size": 12 * FONT_SCALE
+    })
     
     # Define Metric Groups
     groups = {
@@ -115,17 +141,17 @@ def plot_distributions(df, output_dir):
         },
         'cosine': {
             'metrics': ['cosine_similarity'],
-            'title': 'Cosine Similarity (0-1)',
+            'title': 'Cosine Similarity',
             'file_suffix': 'cosine'
         },
         'rouge': {
             'metrics': ['rouge_l'],
-            'title': 'ROUGE-L Score (0-1)',
+            'title': 'ROUGE-L Score',
             'file_suffix': 'rouge'
         },
         'bleu': {
             'metrics': ['bleu'],
-            'title': 'BLEU Score (0-100)',
+            'title': 'BLEU Score',
             'file_suffix': 'bleu'
         }
     }
@@ -139,9 +165,17 @@ def plot_distributions(df, output_dir):
         plt.figure(figsize=(8 if len(metrics_list)==1 else 10, 6))
         df_melt = df.melt(id_vars=['reviewer_type', 'model'], value_vars=metrics_list, var_name='Metric', value_name='Score')
         
-        sns.barplot(data=df_melt, x='Metric', y='Score', hue='reviewer_type', errorbar='sd', capsize=.1, alpha=0.8)
+        if len(metrics_list) == 1:
+            ax = sns.barplot(data=df_melt, x='reviewer_type', y='Score', hue='reviewer_type', errorbar='sd', capsize=.1, alpha=0.8)
+            if ax.get_legend():
+                ax.get_legend().remove()
+            plt.xlabel("")
+        else:
+            ax = sns.barplot(data=df_melt, x='Metric', y='Score', hue='reviewer_type', errorbar='sd', capsize=.1, alpha=0.8)
+            if ax.get_legend():
+                ax.get_legend().set_title("")
         
-        plt.title(f"{title_base}: Human vs AI (Mean ± Std Dev)")
+        plt.title(f"{title_base}: Human vs AI (Mean ± Std)")
         plt.tight_layout()
         plt.savefig(plot_dir / f'overall_{suffix}.png')
         plt.close()
@@ -152,13 +186,18 @@ def plot_distributions(df, output_dir):
             plt.figure(figsize=(10 if len(metrics_list)==1 else 12, 6))
             df_ai_melt = df_ai.melt(id_vars=['model'], value_vars=metrics_list, var_name='Metric', value_name='Score')
             
-            sns.barplot(data=df_ai_melt, x='Metric', y='Score', hue='model', errorbar='sd', capsize=.1, alpha=0.9)
-            
-            plt.title(f"{title_base}: AI Models (Mean ± Std Dev)")
-            if len(metrics_list) > 1:
+            if len(metrics_list) == 1:
+                ax = sns.barplot(data=df_ai_melt, x='model', y='Score', hue='model', errorbar='sd', capsize=.1, alpha=0.9)
+                if ax.get_legend():
+                    ax.get_legend().remove()
+                plt.xlabel("")
                 plt.xticks(rotation=45)
-            # Move legend outside
-            plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+            else:
+                sns.barplot(data=df_ai_melt, x='Metric', y='Score', hue='model', errorbar='sd', capsize=.1, alpha=0.9)
+                # Move legend outside
+                plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+            
+            plt.title(f"{title_base}: AI Models (Mean ± Std)")
             plt.tight_layout()
             plt.savefig(plot_dir / f'ai_models_{suffix}.png')
             plt.close()
@@ -278,6 +317,7 @@ def main():
                         reviewer_type = 'Human' if is_human else 'AI'
                         if not is_human:
                             model_name = review.get('reviewer').replace('ai/', '')
+                            model_name = NAME_MAPPING.get(model_name, model_name)
                         else:
                             model_name = 'Human'
                         
@@ -306,6 +346,10 @@ def main():
         df.to_csv(csv_path, index=False)
         print(f"Results saved to {csv_path}")
     
+    # Apply Name Mapping to DataFrame (Ensure consistency if loaded from CSV)
+    if 'model' in df.columns:
+        df['model'] = df['model'].replace(NAME_MAPPING)
+
     # Generate Plots
     print("Generating Plots...")
     plot_distributions(df, output_dir)

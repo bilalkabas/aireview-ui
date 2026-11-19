@@ -57,13 +57,13 @@ Mean and Standard Deviation for each metric.
 ![BLEU Overall](plots/overall_bleu.png)
 
 ## AI Model Performance
-|                   |   claude-sonnet-4-20250514 |   fudan |   gpt-5-chat-latest |   hkust-reviewer |   rpi |   stanford |
-|:------------------|---------------------------:|--------:|--------------------:|-----------------:|------:|-----------:|
-| correctness       |                      5.000 |   4.967 |               5.000 |            5.000 | 5.000 |      4.933 |
-| coverage          |                      4.233 |   4.967 |               4.600 |            5.000 | 4.733 |      4.333 |
-| cosine_similarity |                      0.873 |   0.932 |               0.895 |            0.946 | 0.916 |      0.822 |
-| rouge_l           |                      0.330 |   0.311 |               0.251 |            0.450 | 0.312 |      0.134 |
-| bleu              |                      9.945 |  13.443 |               9.950 |           16.452 | 8.607 |      0.237 |
+|                   |   A*STAR |   Duke |   Fudan |   HKUST |   RPI |   Stanford |
+|:------------------|---------:|-------:|--------:|--------:|------:|-----------:|
+| correctness       |    5.000 |  5.000 |   4.967 |   5.000 | 5.000 |      4.933 |
+| coverage          |    4.233 |  4.600 |   4.967 |   5.000 | 4.733 |      4.333 |
+| cosine_similarity |    0.873 |  0.895 |   0.932 |   0.946 | 0.916 |      0.822 |
+| rouge_l           |    0.330 |  0.251 |   0.311 |   0.450 | 0.312 |      0.134 |
+| bleu              |    9.945 |  9.950 |  13.443 |  16.452 | 8.607 |      0.237 |
 
 ### Visualizations (By Model)
 #### LLM Scores (1-5)
@@ -77,12 +77,4 @@ Mean and Standard Deviation for each metric.
 
 #### BLEU (0-100)
 ![BLEU AI Models](plots/ai_models_bleu.png)
-
-## Analysis of Stanford Model Performance
-The Stanford model exhibits significantly lower lexical overlap scores (ROUGE-L: 0.134, BLEU: 0.237) compared to other models, despite maintaining high semantic correctness (LLM Score: 4.933).
-
-Qualitative analysis reveals that this discrepancy is primarily due to **structural formatting differences**:
-*   **Original Output**: The Stanford model produces reviews with specific headers (e.g., "Summary") and titles that differ from the target schema.
-*   **Harmonization Effect**: The harmonization process forces extensive rewriting to align with the required format (e.g., changing "Summary" to "**Opening Paragraph**").
-*   **Result**: This structural overhaul destroys n-gram matches (penalizing BLEU/ROUGE) while preserving the underlying semantic meaning (high LLM/Cosine scores).
 

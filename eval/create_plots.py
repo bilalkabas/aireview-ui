@@ -7,6 +7,27 @@ from pathlib import Path
 from utils import METRICS
 from metrics import compute_turing_tests
 
+FONT_SCALE = 2.0
+AXIS_LEGEND_SCALE = 1.5
+RADAR_FONT_SCALE = 3.0
+CM_FONT_SCALE = 1.1
+DECISION_ANALYSIS_FONT_SCALE = 2.0
+
+NAME_MAPPING = {
+    "gpt-5-chat-latest": "Duke",
+    "claude-sonnet-4-20250514": "A*STAR",
+    "hkust-reviewer": "HKUST",
+    "stanford": "Stanford",
+    "rpi": "RPI",
+    "fudan": "Fudan",
+    "Bernhard": "E1",
+    "Guang": "E2",
+    "Justin": "E3",
+    "Luping": "E4",
+    "Tolga": "E5",
+    "Yixuan": "E6"
+}
+
 def plot_confusion_matrix(cm_dict, title, filename):
     """
     Plots a 2x2 Confusion Matrix heatmap.
@@ -30,12 +51,13 @@ def plot_confusion_matrix(cm_dict, title, filename):
     annot_labels = df_cm.map(lambda v: f"{v}\n({v/total*100:.1f}%)" if total > 0 else f"{v}")
     
     plt.figure(figsize=(6, 5))
-    sns.heatmap(df_cm, annot=annot_labels, fmt='', cmap='Blues', cbar=False, annot_kws={"size": 22})
-    plt.title(title, fontsize=20)
-    plt.ylabel("Actual Label", fontsize=18, fontweight='bold')
-    plt.xlabel("Predicted Label", fontsize=18, fontweight='bold')
-    plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20, rotation=90, va='center')
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(df_cm, annot=annot_labels, fmt='', cmap='Blues', cbar=False, annot_kws={"size": 22 * CM_FONT_SCALE})
+    plt.title(title, fontsize=20 * CM_FONT_SCALE)
+    plt.ylabel("Actual Label", fontsize=18 * CM_FONT_SCALE, fontweight='bold')
+    plt.xlabel("Predicted Label", fontsize=18 * CM_FONT_SCALE, fontweight='bold')
+    plt.xticks(fontsize=20 * CM_FONT_SCALE)
+    plt.yticks(fontsize=20 * CM_FONT_SCALE, rotation=90, va='center')
     plt.tight_layout()
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.close()
@@ -66,11 +88,11 @@ def plot_combined_cms(per_eval_res, filename):
         total = df_cm.sum().sum()
         annot_labels = df_cm.map(lambda v: f"{v}\n({v/total*100:.0f}%)" if total > 0 else f"{v}")
         
-        sns.heatmap(df_cm, annot=annot_labels, fmt='', cmap='Blues', cbar=False, ax=axes[i], annot_kws={"size": 24})
-        axes[i].set_title(ev, fontsize=24)
-        axes[i].set_ylabel("Actual Label", fontsize=20, fontweight='bold')
-        axes[i].set_xlabel("Predicted Label", fontsize=20, fontweight='bold')
-        axes[i].tick_params(axis='both', which='major', labelsize=22)
+        sns.heatmap(df_cm, annot=annot_labels, fmt='', cmap='Blues', cbar=False, ax=axes[i], annot_kws={"size": 24 * CM_FONT_SCALE})
+        axes[i].set_title(ev, fontsize=24 * CM_FONT_SCALE)
+        axes[i].set_ylabel("Actual Label", fontsize=20 * CM_FONT_SCALE, fontweight='bold')
+        axes[i].set_xlabel("Predicted Label", fontsize=20 * CM_FONT_SCALE, fontweight='bold')
+        axes[i].tick_params(axis='both', which='major', labelsize=22 * CM_FONT_SCALE)
         axes[i].set_yticklabels(axes[i].get_yticklabels(), rotation=90, va='center')
         
     # Hide empty subplots
@@ -95,11 +117,11 @@ def create_radar_chart(data_dict, title, filename):
     ax = plt.subplot(111, polar=True)
     
     # Draw one axe per variable + add labels
-    plt.xticks(angles[:-1], categories, color='grey', size=10)
+    plt.xticks(angles[:-1], categories, color='grey', size=10 * RADAR_FONT_SCALE)
     
     # Draw ylabels
     ax.set_rlabel_position(0)
-    plt.yticks([1, 2, 3, 4, 5], ["1","2","3","4","5"], color="grey", size=7)
+    plt.yticks([1, 2, 3, 4, 5], ["1","2","3","4","5"], color="grey", size=7 * RADAR_FONT_SCALE)
     plt.ylim(0, 5.5)
     
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
@@ -112,8 +134,59 @@ def create_radar_chart(data_dict, title, filename):
         ax.plot(angles, values, linewidth=2, linestyle='solid', label=label, color=color)
         ax.fill(angles, values, color=color, alpha=0.1)
     
-    plt.title(title, size=15, y=1.1)
-    plt.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
+    plt.title(title, size=15 * RADAR_FONT_SCALE, y=1.1)
+    plt.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1), fontsize=10 * RADAR_FONT_SCALE)
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.close()
+
+def plot_evaluator_detection_metrics(per_eval_res, filename):
+    """
+    Plots grouped bar chart for AI detection metrics per evaluator.
+    """
+    metrics_data = []
+    for ev, cm in per_eval_res.items():
+        tp, tn, fp, fn = cm['TP'], cm['TN'], cm['FP'], cm['FN']
+        total = tp + tn + fp + fn
+        if total == 0: continue
+        
+        acc = (tp + tn) / total
+        prec = tp / (tp + fp) if (tp + fp) > 0 else 0
+        rec = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f1 = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0
+        
+        metrics_data.append({
+            'Evaluator': ev,
+            'Accuracy': acc,
+            'Precision': prec,
+            'Recall': rec,
+            'F1 Score': f1
+        })
+        
+    df = pd.DataFrame(metrics_data)
+    if df.empty: return
+    
+    df_melt = df.melt(id_vars='Evaluator', var_name='Metric', value_name='Score')
+    
+    plt.figure(figsize=(12, 8))
+    # Custom Pastel palette (vibrant but not too faded)
+    # Teal/Green, Yellow, Purple, Red/Orange
+    palette = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']
+    
+    ax = sns.barplot(data=df_melt, x='Evaluator', y='Score', hue='Metric', palette=palette, edgecolor='black', linewidth=1)
+    
+    plt.title("AI vs Human Review Detection", fontsize=14 * FONT_SCALE, fontweight='bold')
+    plt.xlabel("Evaluator", fontsize=14 * AXIS_LEGEND_SCALE, fontweight='bold')
+    plt.ylabel("Score", fontsize=14 * AXIS_LEGEND_SCALE, fontweight='bold')
+    plt.axhline(1.0, linestyle='--', color='lightgrey')
+    
+    plt.xticks(fontsize=12 * AXIS_LEGEND_SCALE)
+    plt.yticks(fontsize=12 * AXIS_LEGEND_SCALE)
+    plt.ylim(0, 1.15)
+    plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12 * AXIS_LEGEND_SCALE, borderaxespad=0.)
+    
+            
+    plt.tight_layout()
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.close()
 
@@ -121,11 +194,24 @@ def generate_plots(data, output_dir):
     """
     Generates all plots from the loaded data.
     """
+    sns.set_context("notebook", rc={
+        "axes.titlesize": 12 * FONT_SCALE,
+        "axes.labelsize": 12 * AXIS_LEGEND_SCALE,
+        "xtick.labelsize": 11 * AXIS_LEGEND_SCALE,
+        "ytick.labelsize": 11 * AXIS_LEGEND_SCALE,
+        "legend.fontsize": 11 * AXIS_LEGEND_SCALE,
+        "font.size": 12 * FONT_SCALE
+    })
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
     scores_df = pd.DataFrame(data['scores'])
-    
+    # Apply mapping to scores_df evaluator and model
+    if 'evaluator' in scores_df.columns:
+        scores_df['evaluator'] = scores_df['evaluator'].replace(NAME_MAPPING)
+    if 'model' in scores_df.columns:
+        scores_df['model'] = scores_df['model'].replace(NAME_MAPPING)
+
     # 1. Box Plot: Human vs AI (Aggregated)
     if not scores_df.empty:
         plt.figure(figsize=(10, 6))
@@ -142,7 +228,7 @@ def generate_plots(data, output_dir):
         plt.close()
         
         # 2. Box Plot: Per Evaluator
-        plt.figure(figsize=(12, 6))
+        plt.figure(figsize=(9, 6))
         sns.boxplot(data=scores_df, x='evaluator', y='score', palette='Set2')
         plt.title('Score Distribution by Evaluator')
         plt.xticks(rotation=45)
@@ -167,16 +253,16 @@ def generate_plots(data, output_dir):
         
         radar_data = {
             'Human': human_means,
-            'AI (Avg)': ai_means
+            'AI': ai_means
         }
         create_radar_chart(radar_data, 'Average Score Profile: Human vs AI', output_dir / "radar_human_vs_ai.png")
         
         # 4. Radar Chart: Per Model
         model_radar_data = {'Human': human_means}
-        models = data['models']
-        for m in models:
-            m_means = scores_df[scores_df['model'] == m].groupby('metric')['score'].mean().to_dict()
-            model_radar_data[m] = m_means
+        models = [NAME_MAPPING.get(m, m) for m in data['models']]
+        for m in data['models']: # Use original names to filter, but mapped name for display
+            m_means = scores_df[scores_df['model'] == NAME_MAPPING.get(m, m)].groupby('metric')['score'].mean().to_dict()
+            model_radar_data[NAME_MAPPING.get(m, m)] = m_means
             
         create_radar_chart(model_radar_data, 'Score Profile per Model', output_dir / "radar_models.png")
     
@@ -185,17 +271,28 @@ def generate_plots(data, output_dir):
     
     # Overall
     if turing_tests['overall']:
-        plot_confusion_matrix(turing_tests['overall'], 'Overall Confusion Matrix (AI Detection)', output_dir / "turing_cm_overall.png")
+        plot_confusion_matrix(turing_tests['overall'], 'AI Detection Confusion Matrix', output_dir / "turing_cm_overall.png")
         
     # Per Evaluator (Combined)
     if turing_tests['per_evaluator']:
-        plot_combined_cms(turing_tests['per_evaluator'], output_dir / "turing_cm_evaluators_combined.png")
+        # Map keys
+        mapped_turing = {NAME_MAPPING.get(k, k): v for k, v in turing_tests['per_evaluator'].items()}
+        plot_combined_cms(mapped_turing, output_dir / "turing_cm_evaluators_combined.png")
+        plot_evaluator_detection_metrics(mapped_turing, output_dir / "turing_metrics_per_evaluator.png")
         
     print(f"Plots saved to {output_dir}")
 def plot_decision_analysis(stats, output_dir):
     """
     Generates plots for Accepted vs Rejected analysis.
     """
+    sns.set_context("notebook", rc={
+        "axes.titlesize": 12 * DECISION_ANALYSIS_FONT_SCALE,
+        "axes.labelsize": 12 * DECISION_ANALYSIS_FONT_SCALE,
+        "xtick.labelsize": 11 * DECISION_ANALYSIS_FONT_SCALE,
+        "ytick.labelsize": 11 * DECISION_ANALYSIS_FONT_SCALE,
+        "legend.fontsize": 11 * DECISION_ANALYSIS_FONT_SCALE,
+        "font.size": 12 * DECISION_ANALYSIS_FONT_SCALE
+    })
     out = Path(output_dir)
     # Ensure stats are populated
     if not stats or not stats.get('score_means'):
@@ -265,11 +362,11 @@ def plot_decision_analysis(stats, output_dir):
         cmap = 'Greens' if dec=='Accept' else 'Reds'
         
         sns.heatmap(df_cm, annot=annot, fmt='', cmap=cmap, cbar=False, ax=axes[i], 
-                    annot_kws={"size": 16, "weight": "bold"}, square=True)
+                    annot_kws={"size": 16 * DECISION_ANALYSIS_FONT_SCALE, "weight": "bold"}, square=True)
         
-        axes[i].set_title(f"{dec} Papers\nAcc: {acc:.1%}", fontsize=14, fontweight='bold')
-        axes[i].set_xlabel("Predicted", fontsize=12)
-        axes[i].tick_params(labelsize=11)
+        axes[i].set_title(f"{dec} Papers\nAcc: {acc:.1%}", fontsize=14 * DECISION_ANALYSIS_FONT_SCALE, fontweight='bold')
+        axes[i].set_xlabel("Predicted", fontsize=12 * DECISION_ANALYSIS_FONT_SCALE)
+        axes[i].tick_params(labelsize=11 * DECISION_ANALYSIS_FONT_SCALE)
         
     plt.tight_layout()
     plt.savefig(out / 'decision_turing_combined.png', bbox_inches='tight')
@@ -298,7 +395,7 @@ def plot_decision_analysis(stats, output_dir):
     # 6. Distribution
     counts = stats['counts']
     df_counts = pd.DataFrame(counts).T
-    order_c = ['Papers', 'Reviews', 'Human Reviews', 'AI Reviews', 'Scored Reviews']
+    order_c = ['Papers', 'Reviews']
     df_counts = df_counts.reindex(order_c)
     
     plt.figure()
@@ -308,20 +405,20 @@ def plot_decision_analysis(stats, output_dir):
     
     for p in ax.patches:
         ax.annotate(str(int(p.get_height())), (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 5), textcoords='offset points', fontsize=9, fontweight='bold')
+                    ha='center', va='center', xytext=(0, 5), textcoords='offset points', fontsize=9 * DECISION_ANALYSIS_FONT_SCALE, fontweight='bold')
         
     plt.legend(title='')
-    plt.xticks(rotation=0, fontsize=9)
+    plt.xticks(rotation=0, fontsize=9 * DECISION_ANALYSIS_FONT_SCALE)
     plt.savefig(out / 'decision_distribution.png', bbox_inches='tight')
     plt.close()
 
     # 7. Combined Figure
-    fig = plt.figure(figsize=(18, 20))
+    fig = plt.figure(figsize=(18, 22))
     # Layout: 3 rows. 
     # Row 1: Human (0,0), AI (0,1)
     # Row 2: Detection (1,0), Distribution (1,1)
     # Row 3: Turing Combined (Using 2 subplots)
-    gs = fig.add_gridspec(3, 2, height_ratios=[1, 0.8, 1], top=0.92) # adjust top for legend
+    gs = fig.add_gridspec(3, 2, height_ratios=[1, 0.8, 1], top=0.9, hspace=0.6, wspace=0.3) 
     
     # R1: Scores
     # Shorten labels for combined plot
@@ -337,38 +434,44 @@ def plot_decision_analysis(stats, output_dir):
 
     ax_h = fig.add_subplot(gs[0, 0])
     df_h_s.plot(kind='bar', color=color_palette, rot=0, width=0.7, yerr=df_h_err_s, capsize=4, ax=ax_h)
-    ax_h.set_title("Human Review Scores", fontsize=16)
+    ax_h.set_title("Human Review Scores", fontsize=16 * DECISION_ANALYSIS_FONT_SCALE)
     ax_h.set_ylim(0, 5.5)
     ax_h.set_xlabel("")
     ax_h.get_legend().remove() # Start by removing default, we will add global
-    plt.setp(ax_h.get_xticklabels(), ha="center", rotation=0, fontsize=12)
+    plt.setp(ax_h.get_xticklabels(), ha="center", rotation=45, fontsize=12 * DECISION_ANALYSIS_FONT_SCALE)
     
     # Get handles/labels for global legend
     handles, labels = ax_h.get_legend_handles_labels()
-    fig.legend(handles, labels, loc='upper center', ncol=2, bbox_to_anchor=(0.5, 0.95), fontsize=14, frameon=False)
+    fig.legend(handles, labels, loc='upper center', ncol=2, bbox_to_anchor=(0.5, 0.98), fontsize=14 * DECISION_ANALYSIS_FONT_SCALE, frameon=False)
     
     ax_a = fig.add_subplot(gs[0, 1])
     df_a_s.plot(kind='bar', color=color_palette, rot=0, width=0.7, yerr=df_a_err_s, capsize=4, ax=ax_a)
-    ax_a.set_title("AI Review Scores", fontsize=16)
+    ax_a.set_title("AI Review Scores", fontsize=16 * DECISION_ANALYSIS_FONT_SCALE)
     ax_a.set_ylim(0, 5.5)
     ax_a.set_xlabel("")
     ax_a.legend().remove()
-    plt.setp(ax_a.get_xticklabels(), ha="center", rotation=0, fontsize=12)
+    plt.setp(ax_a.get_xticklabels(), ha="center", rotation=45, fontsize=12 * DECISION_ANALYSIS_FONT_SCALE)
     
     # R2: Metrics & Dist
     ax_det = fig.add_subplot(gs[1, 0])
     df_det.plot(kind='bar', color=color_palette, rot=0, width=0.7, ax=ax_det)
-    ax_det.set_title("AI Detection Accuracy", fontsize=16)
+    ax_det.set_title("AI Detection Accuracy", fontsize=16 * DECISION_ANALYSIS_FONT_SCALE)
     ax_det.set_ylim(0, 1.0)
     ax_det.legend().remove()
     
     ax_cnt = fig.add_subplot(gs[1, 1])
-    df_counts.plot(kind='bar', color=color_palette, rot=0, width=0.8, ax=ax_cnt)
-    ax_cnt.set_title("Dataset Distribution", fontsize=16)
+    df_counts.plot(kind='bar', color=color_palette, rot=45, width=0.8, ax=ax_cnt)
+    ax_cnt.set_title("Dataset Distribution", fontsize=16 * DECISION_ANALYSIS_FONT_SCALE)
+    plt.setp(ax_cnt.get_xticklabels(), ha="right", rotation=45, fontsize=12 * DECISION_ANALYSIS_FONT_SCALE)
+    # Add margin for rotated labels
+    ax_cnt.margins(y=0.2)
     ax_cnt.legend().remove()
     for p in ax_cnt.patches:
-        ax_cnt.annotate(str(int(p.get_height())), (p.get_x() + p.get_width() / 2., p.get_height()), 
-                        ha='center', va='bottom', xytext=(0, 3), textcoords='offset points', fontsize=10, fontweight='bold')
+        height = p.get_height()
+        if height > 0:
+            ax_cnt.annotate(str(int(height)), (p.get_x() + p.get_width() / 2., height), 
+                            ha='center', va='bottom', xytext=(0, 5), textcoords='offset points', 
+                            rotation=90, fontsize=9 * DECISION_ANALYSIS_FONT_SCALE, fontweight='bold')
     
     # R3: Turing CMs
     for i, dec in enumerate(['Accept', 'Reject']):
@@ -382,12 +485,12 @@ def plot_decision_analysis(stats, output_dir):
         cmap = 'Greens' if dec=='Accept' else 'Reds'
         
         sns.heatmap(df_cm, annot=annot, fmt='', cmap=cmap, cbar=False, ax=ax_cm, 
-                    annot_kws={"size": 18, "weight": "bold"}, square=True)
-        ax_cm.set_title(f"{dec} Papers CM (Acc: {acc:.1%})", fontsize=16)
-        ax_cm.set_xlabel("Predicted Label", fontsize=14)
-        ax_cm.set_ylabel("Actual Label", fontsize=14)
-        ax_cm.tick_params(labelsize=14)
+                    annot_kws={"size": 18 * DECISION_ANALYSIS_FONT_SCALE, "weight": "bold"}, square=True)
+        ax_cm.set_title(f"{dec} Papers CM (Acc: {acc:.1%})", fontsize=16 * DECISION_ANALYSIS_FONT_SCALE)
+        ax_cm.set_xlabel("Predicted Label", fontsize=14 * DECISION_ANALYSIS_FONT_SCALE)
+        ax_cm.set_ylabel("Actual Label", fontsize=14 * DECISION_ANALYSIS_FONT_SCALE)
+        ax_cm.tick_params(labelsize=14 * DECISION_ANALYSIS_FONT_SCALE)
         
-    plt.tight_layout()
+    # plt.tight_layout(rect=[0, 0, 1, 0.92], h_pad=5.0) # Removed due to conflict with square=True aspect ratio
     plt.savefig(out / 'decision_analysis_combined.png', bbox_inches='tight')
     plt.close()
